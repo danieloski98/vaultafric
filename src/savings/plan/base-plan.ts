@@ -1,4 +1,4 @@
-import { User } from '../../auth/user.entity';
+import { User } from '../../auth/entity/user.entity';
 
 export interface Plan {
   start: Date;

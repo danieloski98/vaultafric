@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { FixedSavings } from './fixed-savings.entity';
 import { FixedSavingsDto } from './dto/fixed-savings.dto';
-import { User } from '../../auth/user.entity';
+import { User } from '../../auth/entity/user.entity';
 
 @EntityRepository(FixedSavings)
 export class FixedSavingsRepository extends Repository<FixedSavings>{

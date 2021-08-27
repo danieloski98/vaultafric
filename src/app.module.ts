@@ -3,23 +3,26 @@ import { AuthModule } from './auth/auth.module';
 import { SavingsModule } from './savings/savings.module';
 import { InvestmentModule } from './investment/investment.module';
 import { LoanModule } from './loan/loan.module';
-import { UserprofileModule } from './userprofile/userprofile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { InsuranceModule } from './insurance/insurance.module';
+import { CardModule } from './card/card.module';
 
 @Module({
   imports: [
     AuthModule, SavingsModule, 
-    InvestmentModule, LoanModule, UserprofileModule,
+    InvestmentModule, LoanModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 8000,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'money-vault',
+      host: process.env.DB_HOST || 'localhost',
+      port: +process.env.DB_PORT || 5432,
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASS || 'postgress',
+      database: process.env.DB_NAME || 'money-vault',
       autoLoadEntities: true,
       synchronize: true
-    })
+    }),
+    InsuranceModule,
+    CardModule
   ],
 })
 export class AppModule {}

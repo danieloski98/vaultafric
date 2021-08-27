@@ -1,8 +1,8 @@
 {
   "name": "moneyvault-be",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Initial Monolith backend for MoneyVault - VaultAfrica.co",
+  "author": "Charles Allison",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -31,6 +31,7 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "meaningful-string": "^1.3.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "pg": "^8.6.0",

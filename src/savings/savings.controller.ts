@@ -3,7 +3,7 @@ import { FixedSavingsDto } from './fixed-savings/dto/fixed-savings.dto';
 import { SavingsService } from './savings.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user-decorator';
-import { User } from '../auth/user.entity';
+import { User } from '../auth/entity/user.entity';
 import { FixedSavings } from './fixed-savings/fixed-savings.entity';
 import { UpdatedFixedSavingsDto } from './fixed-savings/dto/updated-fixed-savings.dto';
 import { DeleteFixedSavingsDto } from './fixed-savings/dto/delete-fixed-savings.dto';

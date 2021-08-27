@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
-@Unique(['email'])
+@Unique(['email', 'phoneNumber'])
 export class User extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -23,4 +23,9 @@ export class User extends BaseEntity {
 
     @Column()
     password: string;
+
+    @Column({
+        default: false
+    })
+    isAccountConfirmed: boolean;
 }

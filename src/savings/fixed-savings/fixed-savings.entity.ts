@@ -1,6 +1,6 @@
 import { Plan, SavingsOccurrence } from '../plan/base-plan';
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../../auth/user.entity';
+import { User } from '../../auth/entity/user.entity';
 
 @Entity()
 export class FixedSavings extends BaseEntity implements Plan {
