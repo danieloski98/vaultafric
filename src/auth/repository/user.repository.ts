@@ -1,14 +1,9 @@
 import { EntityRepository, Repository } from "typeorm";
-import { User } from "../entity/user.entity";
-import { ConflictException, InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs'
+import { ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { User } from "../entity/user.entity";
 import { SignUpCredentialsDto } from '../dto/signup-credentials.dto';
 import { NewPasswordDto } from '../dto/new-password.dto';
-
-// postgres error codes.
-enum pgErrorCodes {
-    DuplicateEmailErrorCode = '23505'
-}
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -22,7 +17,6 @@ export class UserRepository extends Repository<User> {
         try {
             await this.save(user);
         }catch (e) {
-            if(e.code === pgErrorCodes.DuplicateEmailErrorCode) throw new ConflictException('Email already exist');
             throw new InternalServerErrorException();
         }
         return user;

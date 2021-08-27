@@ -16,7 +16,7 @@ import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
     JwtModule.register({
       secret: 'my secret',
       signOptions: {
-        expiresIn: 1800
+        expiresIn: "5hours"
       }
     }),
     TypeOrmModule.forFeature([UserRepository, OtpRepository])

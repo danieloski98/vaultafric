@@ -18,8 +18,4 @@ export class OtpRepository extends Repository<Otp> {
     return otpEntity;
   }
 
-  async deleteOtp(otp: string): Promise<void> {
-    const otpEntity = await this.findOne(otp);
-    await this.remove(otpEntity);
-  }
 }

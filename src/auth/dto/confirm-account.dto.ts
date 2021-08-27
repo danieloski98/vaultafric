@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, Length } from 'class-validator';
 
 export class ConfirmAccountDto {
-  @IsString()
   @IsNotEmpty()
+  @Length(6, 6)
   otp: string
   
 }

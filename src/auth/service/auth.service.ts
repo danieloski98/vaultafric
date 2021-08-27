@@ -22,9 +22,18 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
-    async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<string> {
-        const user = await this.userRepository.createUser(signUpCredentialsDto);
-        return await this.otpService.getOTPCode(user);
+    async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
+        const { email, username, phoneNumber } = signUpCredentialsDto;
+        const user = await this.userRepository.findOne({email, username, phoneNumber});
+
+        if(!user) {
+            throw new BadRequestException('Records already exist');
+        }
+
+        const newUser = await this.userRepository.createUser(signUpCredentialsDto);
+        const confirmationCode: string = await this.otpService.getOTPCode(newUser);
+
+        return { confirmationCode };
     }
 
     async signIn(signInCredentialsDto: SignInCredentialsDto): Promise<{ accessToken: string}> {
@@ -45,18 +54,18 @@ export class AuthService {
     }
 
     // TODO - complete function
-    async sendEmailOTP(resetCredentialsDto: ResetCredentialsDto): Promise<string> {
+    async sendEmailOTP(resetCredentialsDto: ResetCredentialsDto): Promise<{ otp: string }> {
         const user = await this.getUserByEmail(resetCredentialsDto.email);
 
         if(!user) {
             throw new BadRequestException('Email not found.')
         }
 
-        const otp = await this.otpService.getOTPCode(user);
+        const otp: string = await this.otpService.getOTPCode(user);
 
         // TODO: send otp to email via sns
 
-        return otp // return for local api client test.
+        return { otp } // return for local api client test.
     }
 
     async confirmCode(confirmAccountDto: ConfirmAccountDto): Promise<void> {

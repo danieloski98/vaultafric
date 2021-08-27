@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { User } from '../entity/user.entity';
 
@@ -8,8 +8,8 @@ export class AccountConfirmedGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: User = request.user
 
-    if(!user) {
-      return false;
+    if(!user || !user.isAccountConfirmed) {
+      throw new UnauthorizedException('Your account has not been confirmed');
     }
 
     return user.isAccountConfirmed;

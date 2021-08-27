@@ -22,9 +22,10 @@ export class AuthController {
   }
 
   @Post('/signup')
-  signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto) {
+  signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
     return this.authService.signUp(signUpCredentialsDto);
   }
+
 
   @HttpCode(200)
   @Post('/confirm/account')

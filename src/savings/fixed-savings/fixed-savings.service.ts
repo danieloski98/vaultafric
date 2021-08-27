@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FixedSavingsRepository } from './fixed-savings.repository';
 import { User } from '../../auth/entity/user.entity';
 import { FixedSavingsDto } from './dto/fixed-savings.dto';
 import { UpdatedFixedSavingsDto } from './dto/updated-fixed-savings.dto';
 import { FixedSavings } from './fixed-savings.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
 
+@UseGuards(AccountConfirmedGuard)
+@UseGuards(AuthGuard('jwt'))
 @Injectable()
 export class FixedSavingsService {
 
@@ -37,8 +41,8 @@ export class FixedSavingsService {
     await this.fixedSavingsRepository.delete(fixedDeposit);
   }
 
-  async getSavings(userId: string): Promise<FixedSavings[]> {
-    return this.fixedSavingsRepository.getAllSavings(userId);
+  async getSavings(user: User): Promise<FixedSavings[]> {
+    return this.fixedSavingsRepository.getAllSavings(user);
   }
 
   async getSavingsById(user: User, id: string): Promise<FixedSavings> {

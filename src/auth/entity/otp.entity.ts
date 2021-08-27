@@ -1,8 +1,8 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'OTP' })
-@Unique(['otp'])
+@Unique(['otp', 'user'])
 export class Otp extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

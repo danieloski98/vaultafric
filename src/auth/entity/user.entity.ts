@@ -1,12 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-@Unique(['email', 'phoneNumber'])
 export class User extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
+    @Column({unique: true})
     email: string;
 
     @Column()
@@ -15,17 +14,15 @@ export class User extends BaseEntity {
     @Column()
     lastname: string
 
-    @Column()
+    @Column({unique: true})
     username: string
 
-    @Column()
+    @Column({unique: true})
     phoneNumber: string
 
     @Column()
     password: string;
 
-    @Column({
-        default: false
-    })
+    @Column({ default: false })
     isAccountConfirmed: boolean;
 }
