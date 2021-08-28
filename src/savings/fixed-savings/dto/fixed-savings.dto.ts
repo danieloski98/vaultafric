@@ -7,9 +7,11 @@ export class FixedSavingsDto {
   @IsNotEmpty()
   name: string;
 
+  @IsNotEmpty()
   @IsDate()
   start: Date;
 
+  @IsNotEmpty()
   @IsDate()
   end: Date;
 

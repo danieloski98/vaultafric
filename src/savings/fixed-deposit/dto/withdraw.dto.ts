@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CreditAccountDto {
+export class WithdrawDto {
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumber({maxDecimalPlaces:0, allowInfinity: false})
   amount: number;
 }

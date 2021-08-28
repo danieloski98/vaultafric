@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 import { SavingsOccurrence } from '../../plan/base-plan';
 
 export class UpdatedFixedSavingsDto {

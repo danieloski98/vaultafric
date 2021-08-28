@@ -1,18 +1,16 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Plan, SavingsOccurrence } from '../plan/base-plan';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Duration } from '../plan/base-plan';
 import { User } from '../../auth/entity/user.entity';
 
 @Entity()
-export class FixedDeposit extends BaseEntity implements Plan {
+@Unique(['user', 'name'])
+export class FixedDeposit extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    default: 0,
-    nullable: false
-  })
-  balance: number;
+  @Column({ default: 0, nullable: false })
+  amount: number;
 
   @Column()
   end: Date;
@@ -20,13 +18,13 @@ export class FixedDeposit extends BaseEntity implements Plan {
   @Column()
   name: string;
 
-  @Column()
-  occurrence: SavingsOccurrence;
+  @Column({ enum: Duration, length: 8 })
+  duration: Duration;
 
-  @Column()
+  @Column({ default: new Date() })
   start: Date;
 
-  @ManyToOne(() => User, user => user.id, {eager: true, nullable: false})
+  @ManyToOne(() => User, user => user.id, { eager: false, nullable: false })
   user: User;
 
 }

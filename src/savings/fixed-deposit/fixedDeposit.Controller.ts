@@ -1,17 +1,50 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { GetUser } from '../../auth/get-user-decorator';
+import {
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Post,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
+import { Body, Controller} from '@nestjs/common';
 import { User } from '../../auth/entity/user.entity';
-import { FixedSavings } from '../fixed-savings/fixed-savings.entity';
-import { FixedSavingsDto } from '../fixed-savings/dto/fixed-savings.dto';
-import { UpdatedFixedSavingsDto } from '../fixed-savings/dto/updated-fixed-savings.dto';
-import { DeleteFixedSavingsDto } from '../fixed-savings/dto/delete-fixed-savings.dto';
-import { FixedSavingsService } from '../fixed-savings/fixed-savings.service';
+import { GetUser } from '../../auth/get-user-decorator';
+import { FixedDepositDto } from './dto/fixed-deposit.dto';
+import { FixedDepositService} from './fixed-deposit.service';
+import { AuthGuard } from '@nestjs/passport';
+import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
+import { FixedDeposit } from './fixed-deposit.entity';
+import { WithdrawDto } from './dto/withdraw.dto';
 
+@UseGuards(AccountConfirmedGuard)
+@UseGuards(AuthGuard('jwt'))
 @Controller('fixed-deposit')
 export class FixedDepositController {
-  constructor(
-  ) {
+  constructor(private fixedDepositService: FixedDepositService) {}
+
+  @HttpCode(200)
+  @Post()
+  addFixedDeposit(@GetUser() user: User, @Body(ValidationPipe) fixedDepositDto: FixedDepositDto): Promise<void> {
+    return this.fixedDepositService.deposit(user, fixedDepositDto);
   }
 
+  @Get()
+  getDeposits(@GetUser() user: User): Promise<FixedDeposit[]> {
+    return this.fixedDepositService.getDeposits(user);
+  }
+
+  @HttpCode(200)
+  @Post('withdraw')
+  withdrawRequest(@GetUser() user: User, @Body(ValidationPipe)withdrawDto: WithdrawDto): Promise<FixedDeposit|undefined> {
+    return this.fixedDepositService.withdraw(user, withdrawDto);
+  }
+
+  @Delete('delete/:id')
+  deleteDeposit(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.fixedDepositService.deleteDeposit(user, id);
+  }
 
 }

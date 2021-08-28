@@ -5,7 +5,6 @@ import { InvestmentModule } from './investment/investment.module';
 import { LoanModule } from './loan/loan.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InsuranceModule } from './insurance/insurance.module';
-import { CardModule } from './card/card.module';
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import { CardModule } from './card/card.module';
       synchronize: true
     }),
     InsuranceModule,
-    CardModule
   ],
 })
 export class AppModule {}

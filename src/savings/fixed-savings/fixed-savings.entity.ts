@@ -1,9 +1,9 @@
-import { Plan, SavingsOccurrence } from '../plan/base-plan';
+import { SavingsOccurrence } from '../plan/base-plan';
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
 
 @Entity()
-export class FixedSavings extends BaseEntity implements Plan {
+export class FixedSavings extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -17,31 +17,21 @@ export class FixedSavings extends BaseEntity implements Plan {
   @Column()
   start: Date;
 
-  @Column({
-    default: 0,
-    nullable: false
-  })
+  @Column({ default: 0, nullable: false })
   balance: number;
 
-  @Column({
-    type: 'int',
-    nullable: false
-  })
+  @Column({ type: 'int', nullable: false })
   amount: number;
 
-  @Column({
-    default: true
-  })
+  @Column({ default: true })
   isActive: boolean;
 
-  @Column({
-    default: false
-  })
+  @Column({ default: false })
   isElapsed: boolean;
 
   @Column()
   occurrence: SavingsOccurrence;
 
-  @ManyToOne(() => User, user => user.id, {eager: true, nullable: false})
+  @ManyToOne(() => User, user => user.id, {nullable: false})
   user: User
 }

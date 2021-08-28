@@ -26,9 +26,9 @@ export class AuthService {
         const { email, username, phoneNumber } = signUpCredentialsDto;
         const user = await this.userRepository.findOne({email, username, phoneNumber});
 
-        if(!user) {
-            throw new BadRequestException('Records already exist');
-        }
+        // if(!user) {
+        //     throw new BadRequestException('Records already exist');
+        // }
 
         const newUser = await this.userRepository.createUser(signUpCredentialsDto);
         const confirmationCode: string = await this.otpService.getOTPCode(newUser);
@@ -53,7 +53,6 @@ export class AuthService {
         return await this.userRepository.findOne({email})
     }
 
-    // TODO - complete function
     async sendEmailOTP(resetCredentialsDto: ResetCredentialsDto): Promise<{ otp: string }> {
         const user = await this.getUserByEmail(resetCredentialsDto.email);
 

@@ -37,7 +37,7 @@ export class AuthController {
   @Post('/reset/password')
   @UseGuards(AccountConfirmedGuard)
   @UseGuards(AuthGuard('jwt'))
-  reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<string> {
+  reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<{ otp: string }> {
     return this.authService.sendEmailOTP(resetAccountDto);
   }
 
