@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique }
 import { Duration } from '../plan/base-plan';
 import { User } from '../../auth/entity/user.entity';
 
-@Entity()
+@Entity({name: 'FixedDeposits'})
 @Unique(['user', 'name'])
 export class FixedDeposit extends BaseEntity {
 

@@ -8,7 +8,7 @@ import { FixedDepositRepository } from './fixed-deposit.repository';
 import { Duration } from '../plan/base-plan';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WithdrawDto } from './dto/withdraw.dto';
-import { LessThan, MoreThan } from 'typeorm';
+import { MoreThan } from 'typeorm';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))

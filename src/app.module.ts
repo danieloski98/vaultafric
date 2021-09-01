@@ -5,6 +5,7 @@ import { InvestmentModule } from './investment/investment.module';
 import { LoanModule } from './loan/loan.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InsuranceModule } from './insurance/insurance.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { InsuranceModule } from './insurance/insurance.module';
       password: process.env.DB_PASS || 'postgress',
       database: process.env.DB_NAME || 'money-vault',
       autoLoadEntities: true,
-      synchronize: true
+      synchronize: true // TODO: should not be used in prod.
     }),
     InsuranceModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

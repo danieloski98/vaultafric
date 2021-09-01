@@ -2,13 +2,15 @@ version: '3'
 
 services:
   be-vaultafrica:
-    image: vaultafrica/moneyvault
+    image: moneyvault
     container_name: moneyvault-be
     restart: always
+    ports:
+      - "3001:${PORT}"
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS]
+      DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
       DB_PORT: ${DB_PORT}
     depends_on:
@@ -16,9 +18,12 @@ services:
 
   db:
     image: postgres
-    container_name: moneyvault-be
+    container_name: moneyvault-db
     restart: always
+    ports:
+      - "5555:${DB_PORT}"
     environment:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
 

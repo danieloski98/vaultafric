@@ -16,25 +16,29 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(200)
-  @Post('/signin')
+  @Post('signin')
   signIn(@Body(ValidationPipe) signInCredentialsDto: SignInCredentialsDto): Promise<{ accessToken:string}> {
     return this.authService.signIn(signInCredentialsDto);
   }
 
-  @Post('/signup')
+  @Post('signup')
   signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
     return this.authService.signUp(signUpCredentialsDto);
   }
 
+  @Get('resend/otp')
+  resendUserOtp(@GetUser() user: User): Promise<{confirmationCode: string}> {
+    return this.authService.resendOtp(user);
+  }
 
   @HttpCode(200)
-  @Post('/confirm/account')
+  @Post('confirm/account')
   confirmCode(@Body(ValidationPipe) confirmAccountDto: ConfirmAccountDto): Promise<void> {
     return this.authService.confirmCode(confirmAccountDto);
   }
 
   @HttpCode(200)
-  @Post('/reset/password')
+  @Post('reset/password')
   @UseGuards(AccountConfirmedGuard)
   @UseGuards(AuthGuard('jwt'))
   reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<{ otp: string }> {

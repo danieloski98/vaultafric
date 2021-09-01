@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ name: 'OTP' })
+@Entity({ name: 'OneTimePasswords' })
 @Unique(['otp', 'user'])
 export class Otp extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')

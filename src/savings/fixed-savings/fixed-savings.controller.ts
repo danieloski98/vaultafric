@@ -26,7 +26,7 @@ export class FixedSavingsController {
     private fixedSavingsService: FixedSavingsService) {
   }
 
-  @Get('/')
+  @Get('transactions')
   getFixedSavingsEntries(@GetUser() user: User): Promise<FixedSavings[]> {
     return this.fixedSavingsService.getSavings(user);
   }

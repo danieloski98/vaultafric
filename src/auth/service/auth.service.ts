@@ -91,4 +91,9 @@ export class AuthService {
         await this.userRepository.createPassword(otp.user, newPasswordDto);
         await this.otpService.delete(otp);
     }
+
+  async resendOtp(user: User): Promise<{confirmationCode: string}> {
+      const confirmationCode = await this.otpService.getOTPCode(user);
+      return { confirmationCode };
+  }
 }
