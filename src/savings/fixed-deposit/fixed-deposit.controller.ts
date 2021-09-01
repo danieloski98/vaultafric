@@ -42,7 +42,7 @@ export class FixedDepositController {
     return this.fixedDepositService.withdraw(user, withdrawDto);
   }
 
-  @Delete('delete/:id')
+  @Delete(':id')
   deleteDeposit(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.fixedDepositService.deleteDeposit(user, id);
   }
