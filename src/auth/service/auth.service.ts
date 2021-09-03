@@ -12,6 +12,7 @@ import { ResetCredentialsDto } from '../dto/reset-credentails.dto';
 import { User } from '../entity/user.entity';
 import { NewPasswordDto } from '../dto/new-password.dto';
 import { OtpService } from './otp.service';
+import { NotificationService } from '../../notification/notification.service';
 
 @Injectable()
 export class AuthService {
@@ -19,16 +20,17 @@ export class AuthService {
         @InjectRepository(UserRepository)
         private userRepository: UserRepository,
         private otpService: OtpService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private notificationService: NotificationService
     ) {}
 
     async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
         const { email, username, phoneNumber } = signUpCredentialsDto;
         const user = await this.userRepository.findOne({email, username, phoneNumber});
 
-        // if(!user) {
-        //     throw new BadRequestException('Records already exist');
-        // }
+        if(user) {
+            throw new BadRequestException('Records already exist');
+        }
 
         const newUser = await this.userRepository.createUser(signUpCredentialsDto);
         const confirmationCode: string = await this.otpService.getOTPCode(newUser);
@@ -62,7 +64,8 @@ export class AuthService {
 
         const otp: string = await this.otpService.getOTPCode(user);
 
-        // TODO: send otp to email via sns
+        // send email to user
+        await this.notificationService.sendConfirmAccountOTP(user.email, otp);
 
         return { otp } // return for local api client test.
     }

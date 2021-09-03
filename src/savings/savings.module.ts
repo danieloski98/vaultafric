@@ -11,6 +11,7 @@ import { JointSavingsService } from './joint-savings/joint-savings.service';
 import { JointSavingsRepository } from './joint-savings/joint-savings.repository';
 import { JointSavingsController } from './joint-savings/joint-savings.controller';
 import { UserRepository } from '../auth/repository/user.repository';
+import { NotificationService } from '../notification/notification.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { UserRepository } from '../auth/repository/user.repository';
   controllers: [
     FixedDepositController, FixedSavingsController, JointSavingsController
   ],
-  providers: [FixedSavingsService, FixedDepositService, JointSavingsService]
+  providers: [FixedSavingsService, FixedDepositService, JointSavingsService, NotificationService]
 })
 export class SavingsModule {}

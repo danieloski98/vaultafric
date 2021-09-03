@@ -7,13 +7,16 @@ import { CreateJointSavingsDto } from './dto/create-joint-savings.dto';
 import { ParseDatePipe } from '../pipe/ParseDate.pipe';
 import { User } from '../../auth/entity/user.entity';
 import { JointSavingsEntity } from './joint-savings.entity';
+import { NotificationService } from '../../notification/notification.service';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
 @Controller('joint-savings')
 export class JointSavingsController {
 
-  constructor(private jointSavingsService: JointSavingsService) {}
+  constructor(
+    private jointSavingsService: JointSavingsService
+  ) {}
 
   @Get('participants/:username')
   async findParticipants(@Param('username') username: string): Promise<User[]> {

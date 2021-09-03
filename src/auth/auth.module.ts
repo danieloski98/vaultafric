@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { OtpService } from './service/otp.service';
 import { OtpRepository } from './repository/otp.repository';
 import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
+import { NotificationService } from '../notification/notification.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
     TypeOrmModule.forFeature([UserRepository, OtpRepository])
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, OtpService, AccountConfirmedGuard],
+  providers: [AuthService, JwtStrategy, OtpService, AccountConfirmedGuard, NotificationService],
   exports: [JwtStrategy, PassportModule, AccountConfirmedGuard]
 })
 export class AuthModule {}
