@@ -1,7 +1,7 @@
 import {
   Delete,
   Get,
-  HttpCode,
+  HttpCode, HttpStatus,
   Param,
   ParseIntPipe,
   ParseUUIDPipe,
@@ -25,7 +25,7 @@ import { WithdrawDto } from './dto/withdraw.dto';
 export class FixedDepositController {
   constructor(private fixedDepositService: FixedDepositService) {}
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Post()
   addFixedDeposit(@GetUser() user: User, @Body(ValidationPipe) fixedDepositDto: FixedDepositDto): Promise<void> {
     return this.fixedDepositService.deposit(user, fixedDepositDto);
@@ -36,7 +36,7 @@ export class FixedDepositController {
     return this.fixedDepositService.getDeposits(user);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Post('withdraw')
   withdrawRequest(@GetUser() user: User, @Body(ValidationPipe)withdrawDto: WithdrawDto): Promise<FixedDeposit|undefined> {
     return this.fixedDepositService.withdraw(user, withdrawDto);

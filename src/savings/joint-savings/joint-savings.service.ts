@@ -9,7 +9,7 @@ import { JointSavingsEntity } from './joint-savings.entity';
 
 @Injectable()
 export class JointSavingsService {
-  private readonly logger = new Logger('AuthController', true);
+  private readonly logger = new Logger('JointSavingsController', true);
 
   constructor(
     @InjectRepository(JointSavingsRepository)
@@ -20,7 +20,6 @@ export class JointSavingsService {
   ) {}
 
   async findParticipants(usernameStub: string): Promise<User[]>{
-
     const participants = await this.userRepository.find({
       select: ['id', 'email', 'phoneNumber', 'username', 'firstname', 'lastname'],
       where: { username: Like(`${usernameStub}%`) }
