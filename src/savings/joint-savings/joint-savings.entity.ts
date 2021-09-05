@@ -9,7 +9,7 @@ import {
   Unique,
 } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
-import { SavingsOccurrence } from '../plan/base-plan';
+import { SavingsOccurrence } from '../../plan/base-plan';
 
 @Entity({name: 'JointSavings'})
 @Unique(['groupName', 'savingsName', 'owner'])

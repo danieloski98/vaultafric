@@ -1,4 +1,4 @@
-import { SavingsOccurrence } from '../../plan/base-plan';
+import { SavingsOccurrence } from '../../../plan/base-plan';
 import { User } from '../../../auth/entity/user.entity';
 import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 

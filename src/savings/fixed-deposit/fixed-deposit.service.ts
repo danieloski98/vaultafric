@@ -5,7 +5,7 @@ import { User } from '../../auth/entity/user.entity';
 import { FixedDepositDto } from './dto/fixed-deposit.dto';
 import { FixedDeposit } from './fixed-deposit.entity';
 import { FixedDepositRepository } from './fixed-deposit.repository';
-import { Duration } from '../plan/base-plan';
+import { Duration } from '../../plan/base-plan';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WithdrawDto } from './dto/withdraw.dto';
 import { MoreThan } from 'typeorm';

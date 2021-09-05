@@ -1,4 +1,4 @@
-import { SavingsOccurrence } from '../../plan/base-plan';
+import { SavingsOccurrence } from '../../../plan/base-plan';
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class FixedSavingsDto {

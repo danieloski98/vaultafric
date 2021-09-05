@@ -12,12 +12,12 @@ export class DollarSavingsService {
     this.logger.log('Dollar Savings Initialised');
   }
 
-  async buyDollar(amount: number): Promise<void> {
+  async buyDollar(user:User, amount: number): Promise<void> {
     this.logger.log(`Buy dollar called - N${amount}`);
     return Promise.resolve(undefined);
   }
 
-  async convertDollars(amount: number): Promise<void> {
+  async convertDollars(user: User, amount: number): Promise<void> {
     this.logger.log(`Convert dollar called - N${amount}`);
     return Promise.resolve(undefined);
   }

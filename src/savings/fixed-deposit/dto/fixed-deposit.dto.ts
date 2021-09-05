@@ -1,4 +1,4 @@
-import { Duration } from '../../plan/base-plan';
+import { Duration } from '../../../plan/base-plan';
 import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class FixedDepositDto {

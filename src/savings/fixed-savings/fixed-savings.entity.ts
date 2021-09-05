@@ -1,4 +1,4 @@
-import { SavingsOccurrence } from '../plan/base-plan';
+import { SavingsOccurrence } from '../../plan/base-plan';
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
 

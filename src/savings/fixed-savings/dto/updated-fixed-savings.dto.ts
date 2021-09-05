@@ -1,5 +1,5 @@
 import { IsDate, IsNumber, IsString } from 'class-validator';
-import { SavingsOccurrence } from '../../plan/base-plan';
+import { SavingsOccurrence } from '../../../plan/base-plan';
 
 export class UpdatedFixedSavingsDto {
   id: string;

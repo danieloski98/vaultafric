@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { Duration } from '../plan/base-plan';
+import { Duration } from '../../plan/base-plan';
 import { User } from '../../auth/entity/user.entity';
 
 @Entity({name: 'FixedDeposits'})
