@@ -10,6 +10,9 @@ import { OtpService } from './service/otp.service';
 import { OtpRepository } from './repository/otp.repository';
 import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
 import { NotificationService } from '../notification/notification.service';
+import { ProfileRepository } from './repository/profile.repository';
+import { ProfileService } from './service/profile.service';
+import { ProfileController } from './profile.controller';
 
 @Module({
   imports: [
@@ -17,13 +20,13 @@ import { NotificationService } from '../notification/notification.service';
     JwtModule.register({
       secret: 'my secret',
       signOptions: {
-        expiresIn: "5hours"
+        expiresIn: "6hours"
       }
     }),
-    TypeOrmModule.forFeature([UserRepository, OtpRepository])
+    TypeOrmModule.forFeature([UserRepository, OtpRepository, ProfileRepository])
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, OtpService, AccountConfirmedGuard, NotificationService],
+  controllers: [AuthController, ProfileController],
+  providers: [AuthService, JwtStrategy, OtpService, AccountConfirmedGuard, NotificationService, ProfileService],
   exports: [JwtStrategy, PassportModule, AccountConfirmedGuard]
 })
 export class AuthModule {}

@@ -26,10 +26,13 @@ export class AuthService {
 
     async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
         const { email, username, phoneNumber } = signUpCredentialsDto;
-        const user = await this.userRepository.findOne({email, username, phoneNumber});
+
+        const user = await this.userRepository.findOne({
+            where: [{email}, {username}, {phoneNumber}]
+        });
 
         if(user) {
-            throw new BadRequestException('Records already exist');
+            throw new BadRequestException('User record exist');
         }
 
         const newUser = await this.userRepository.createUser(signUpCredentialsDto);

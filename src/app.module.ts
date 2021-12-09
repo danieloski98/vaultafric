@@ -19,10 +19,11 @@ import { NotificationModule } from './notification/notification.module';
       password: process.env.DB_PASS || 'postgress',
       database: process.env.DB_NAME || 'money-vault',
       autoLoadEntities: true,
-      synchronize: true // TODO: should not be used in prod.
+      synchronize: true, // TODO: should not be used in prod.
+      // logging: true
     }),
     InsuranceModule,
-    NotificationModule,
+    NotificationModule
   ],
 })
 export class AppModule {}
