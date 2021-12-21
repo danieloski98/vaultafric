@@ -21,7 +21,7 @@ export class JointSavingsService {
 
   async findParticipants(usernameStub: string): Promise<User[]>{
     const participants = await this.userRepository.find({
-      select: ['id', 'email', 'phoneNumber', 'username', 'firstname', 'lastname'],
+      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname'],
       where: { username: Like(`${usernameStub}%`) }
     });
 

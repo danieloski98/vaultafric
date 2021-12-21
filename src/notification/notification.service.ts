@@ -1,5 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import {config} from "dotenv";
+
+config();
 
 const transport = nodemailer.createTransport({
   host: process.env.EMAIL_HOST!,
@@ -8,21 +11,31 @@ const transport = nodemailer.createTransport({
     user: process.env.EMAIL_USER!,
     pass: process.env.EMAIL_PASS!
   },
-  logger: true
+  logger: true,
+  connectionTimeout: +process.env.CONNECTION_TIMEOUT
 });
 
 @Injectable()
 export class NotificationService {
 
-  async sendConfirmAccountOTP(email: string, otp: string): Promise<void> {
-    const content = `Your confirmation code is ${otp}`;
+  private readonly logger = new Logger(NotificationService.name);
 
-    await transport.sendMail({
-      from: process.env.EMAIL_USER,
-      subject: 'VaultAfrica Confirmation Code',
-      text: content,
-      to: email
-    });
+  async sendOTP(email: string, otp: string): Promise<void> {
+    const text = `Your OTP code is ${otp}`;
+    const html = `Your OTP code is <h3>${otp}</h3>`
+
+    try {
+      await transport.sendMail({
+        from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
+        subject: 'VaultAfrica OTP Code',
+        text, html,
+        to: email
+      });
+    }catch(error) {
+      this.logger.error(`Error sending email: ${error}`);
+    }
+
+    await Promise.resolve();
   }
 
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
 import { ResetCredentialsDto } from './dto/reset-credentails.dto';
 import { SignUpCredentialsDto } from './dto/signup-credentials.dto';
@@ -9,6 +9,7 @@ import { NewPasswordDto } from './dto/new-password.dto';
 import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
 import { ConfirmAccountDto } from './dto/confirm-account.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ResendOtpDto } from './dto/resend-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,13 +23,14 @@ export class AuthController {
   }
 
   @Post('signup')
-  signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
+  signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto): Promise<{ message: string }> {
     return this.authService.signUp(signUpCredentialsDto);
   }
 
-  @Get('resend/otp')
-  resendUserOtp(@GetUser() user: User): Promise<{confirmationCode: string}> {
-    return this.authService.resendOtp(user);
+  @HttpCode(200)
+  @Post('resend/otp')
+  resendUserOtp(@Body(ValidationPipe) resendOtpDto: ResendOtpDto): Promise<{ message: string }> {
+    return this.authService.resendOtp(resendOtpDto);
   }
 
   @HttpCode(200)
@@ -39,10 +41,10 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('reset/password')
-  @UseGuards(AccountConfirmedGuard)
+  @UseGuards(AccountConfirmedGuard) 
   @UseGuards(AuthGuard('jwt'))
-  reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<{ otp: string }> {
-    return this.authService.sendEmailOTP(resetAccountDto);
+  reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<{message: string}> {
+    return this.authService.sendEmailOTP(user, resetAccountDto);
   }
 
   @HttpCode(200)

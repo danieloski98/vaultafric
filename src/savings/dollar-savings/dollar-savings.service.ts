@@ -23,13 +23,13 @@ export class DollarSavingsService {
   }
 
   async transferDollar(transferDollarDto: TransferDollarDto): Promise<void> {
-    this.logger.log(`Transfer dollar to vaulter - '${transferDollarDto.vaulter.username}'`);
+    this.logger.log(`Transfer dollar to vaulter - '${transferDollarDto.vaulter.firstname}'`);
     return Promise.resolve(undefined);
   }
 
   async findVaulter(usernameStub: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      select: ['id', 'email', 'phoneNumber', 'username', 'firstname', 'lastname'],
+      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname'],
       where: { username: Like(`${usernameStub}`) }
     });
 

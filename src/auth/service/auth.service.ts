@@ -1,8 +1,7 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-
 import { JwtPayload } from '../jwt-payload.interface';
 import { UserRepository } from '../repository/user.repository';
 import { SignInCredentialsDto } from '../dto/signin-credentails.dto';
@@ -13,93 +12,130 @@ import { User } from '../entity/user.entity';
 import { NewPasswordDto } from '../dto/new-password.dto';
 import { OtpService } from './otp.service';
 import { NotificationService } from '../../notification/notification.service';
+import { ResendOtpDto } from '../dto/resend-otp.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(UserRepository)
-        private userRepository: UserRepository,
-        private otpService: OtpService,
-        private jwtService: JwtService,
-        private notificationService: NotificationService
-    ) {}
+      @InjectRepository(UserRepository)
+      private userRepository: UserRepository,
+      private otpService: OtpService,
+      private jwtService: JwtService,
+      private notificationService: NotificationService
+    ) {
+    }
 
-    async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ confirmationCode: string }> {
-        const { email, username, phoneNumber } = signUpCredentialsDto;
+    private readonly logger = new Logger(AuthService.name, true);
 
-        const user = await this.userRepository.findOne({
-            where: [{email}, {username}, {phoneNumber}]
+    async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ message: string }> {
+        const { email, phoneNumber } = signUpCredentialsDto;
+
+        let user = await this.userRepository.findOne({
+            where: [{ email }, { phoneNumber }]
         });
 
-        if(user) {
+        if (user) {
             throw new BadRequestException('User record exist');
         }
 
-        const newUser = await this.userRepository.createUser(signUpCredentialsDto);
-        const confirmationCode: string = await this.otpService.getOTPCode(newUser);
+        try {
+            user = await this.userRepository.createUser(signUpCredentialsDto);
+            const otp: string = await this.otpService.getOTPCode(user);
+            await this.sendEmail(user.email, otp);
+        }catch (error) {
+            this.logger.error(`An error occurred: ${error}`);
+            throw new BadRequestException('An error occurred. Please try again');
+        }
 
-        return { confirmationCode };
+        return {message: `A confirmation code has been sent to ${email}`};
     }
 
-    async signIn(signInCredentialsDto: SignInCredentialsDto): Promise<{ accessToken: string}> {
+    async signIn(signInCredentialsDto: SignInCredentialsDto): Promise<{ accessToken: string }> {
+        this.logger.log(`signIn called`);
+
         const { email, password } = signInCredentialsDto;
         const user = await this.getUserByEmail(email);
 
-        if(user && (await bcrypt.compare(password, user.password))) {
-            const payload : JwtPayload = {id: user.id};
+        if (user && (await bcrypt.compare(password, user.password))) {
+            const payload: JwtPayload = { id: user.id };
             const accessToken: string = this.jwtService.sign(payload);
-            return {accessToken};
+            return { accessToken };
         } else {
             throw new UnauthorizedException();
         }
     }
 
     async getUserByEmail(email: string): Promise<User> {
-        return await this.userRepository.findOne({email})
+        return await this.userRepository.findOne({ email })
     }
 
-    async sendEmailOTP(resetCredentialsDto: ResetCredentialsDto): Promise<{ otp: string }> {
-        const user = await this.getUserByEmail(resetCredentialsDto.email);
+    async sendEmailOTP(user: User, resetCredentialsDto: ResetCredentialsDto): Promise<{message: string}> {
+        const { email } = resetCredentialsDto;
 
-        if(!user) {
-            throw new BadRequestException('Email not found.')
+        if(email !== user.email) {
+            throw new BadRequestException(`Invalid email`);
         }
 
-        const otp: string = await this.otpService.getOTPCode(user);
+        const otp = await this.otpService.getOTPCode(user);
+        await this.sendEmail(user.email, otp);
 
-        // send email to user
-        await this.notificationService.sendConfirmAccountOTP(user.email, otp);
-
-        return { otp } // return for local api client test.
+        return {message: `A confirmation code has been sent to ${email}`};
     }
 
     async confirmCode(confirmAccountDto: ConfirmAccountDto): Promise<void> {
         const { otp } = confirmAccountDto;
         const otpModel = await this.otpService.getOtpModel(otp);
-        const { user } = otpModel;
 
-        if(!user) {
-            throw new BadRequestException(`OTP has expired.`)
+        if (!otpModel) {
+            throw new BadRequestException(`OTP not found`);
         }
 
-        user.isAccountConfirmed = !user.isAccountConfirmed
-        await this.userRepository.save(user);
-        await this.otpService.delete(otpModel);
+        const isValid = await this.otpService.isValid(otpModel);
+        if(isValid === false) {
+            await this.otpService.delete(otpModel);
+            throw new BadRequestException(`OTP has expired`);
+        }
+
+        const { user } = otpModel;
+        if(user.isAccountConfirmed === false) {
+            user.isAccountConfirmed = !user.isAccountConfirmed;
+            await this.userRepository.save(user);
+            await this.otpService.delete(otpModel);
+        }
     }
 
     async createNewPassword(newPasswordDto: NewPasswordDto): Promise<void> {
-        const otp = await this.otpService.getOtpModel(newPasswordDto.otp);
+        const otpModel = await this.otpService.getOtpModel(newPasswordDto.otp);
 
-        if(!otp) {
+
+        if (!otpModel) {
             throw new UnauthorizedException();
         }
 
-        await this.userRepository.createPassword(otp.user, newPasswordDto);
-        await this.otpService.delete(otp);
+        const isValid = await this.otpService.isValid(otpModel);
+        if(isValid === false) {
+            throw new BadRequestException(`OTP has expired`)
+        }
+
+        await this.userRepository.createPassword(otpModel.user, newPasswordDto);
+        await this.otpService.delete(otpModel);
     }
 
-  async resendOtp(user: User): Promise<{confirmationCode: string}> {
-      const confirmationCode = await this.otpService.getOTPCode(user);
-      return { confirmationCode };
-  }
+    async resendOtp(resendOtpDto: ResendOtpDto): Promise<{ message: string }> {
+        const { email } = resendOtpDto;
+        const user = await this.userRepository.findOne({ email });
+
+        if(!user) {
+            throw new NotFoundException(`User not found`);
+        }
+
+        const otp = await this.otpService.getOTPCode(user);
+        await this.sendEmail(user.email, otp);
+
+        return {message: "OTP has been sent to your email"};
+    }
+
+    private async sendEmail(email: string, otp: string): Promise<void> {
+        await this.notificationService.sendOTP(email, otp);
+    }
 }

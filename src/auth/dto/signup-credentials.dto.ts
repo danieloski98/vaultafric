@@ -12,9 +12,6 @@ export class SignUpCredentialsDto {
   lastname: string
 
   @IsNotEmpty()
-  username: string
-
-  @IsNotEmpty()
   phoneNumber: string
 
   @IsNotEmpty()
