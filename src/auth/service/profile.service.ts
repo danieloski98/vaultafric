@@ -7,7 +7,6 @@ import { UpdateEmailDto } from '../dto/update-email.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileRepository } from '../repository/profile.repository';
 import { UserRepository } from '../repository/user.repository';
-import { UpdateAvatarDto } from '../dto/update-avatar.dto';
 
 @Injectable()
 export class ProfileService {
@@ -62,13 +61,11 @@ export class ProfileService {
   async updateAddress(user: User, updateAddress: UpdateAddressDto) {
     this.logger.log('Update user address started');
 
-    const {street, city, state, country} = updateAddress;
-    let profile = await this.getProfile(user) ?? this.repository.create({user});
+    const profile = await this.getProfile(user);
 
-    profile.street = street;
-    profile.city = city;
-    profile.state = state;
-    profile.country = country;
+    Object.keys(updateAddress).forEach(key => {
+      profile[key] = updateAddress[key];
+    });
 
     await this.repository.save(profile);
 
@@ -93,11 +90,11 @@ export class ProfileService {
     this.logger.log('Update user email completed');
   }
 
-  async updateAvatar(user: User, updateAvatarDto: UpdateAvatarDto) {
-    this.logger.log('Update avatar started');
+  async updateAvatar(user: User, buffer: Buffer) {
+    this.logger.log('Update user avatar');
 
-    let profile = await this.getProfile(user) ?? this.repository.create({user});
-    profile.avatar  = updateAvatarDto.avatar;
+    let profile = await this.getProfile(user);
+    profile.avatar  = buffer.toString('base64');
     await this.repository.save(profile);
 
     this.logger.log('Update avatar completed');

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Patch, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Patch,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateAccountNameDto } from './dto/update-accountName.dto';
@@ -8,7 +18,7 @@ import { User } from './entity/user.entity';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { ProfileService } from './service/profile.service';
-import { UpdateAvatarDto } from './dto/update-avatar.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -42,9 +52,10 @@ export class ProfileController {
   }
 
   @HttpCode(200)
+  @UseInterceptors(FileInterceptor('avatar'))
   @Patch('avatar')
-  updateAvatar(@GetUser() user: User, @Body(ValidationPipe) updateAvatarDto: UpdateAvatarDto): Promise<void> {
-    return this.profileService.updateAvatar(user, updateAvatarDto);
+  updateAvatar(@GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
+    return this.profileService.updateAvatar(user, file.buffer);
   }
 
   @Get()
