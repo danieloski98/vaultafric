@@ -13,6 +13,7 @@ import { NewPasswordDto } from '../dto/new-password.dto';
 import { OtpService } from './otp.service';
 import { NotificationService } from '../../notification/notification.service';
 import { ResendOtpDto } from '../dto/resend-otp.dto';
+import { ProfileService } from './profile.service';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,8 @@ export class AuthService {
       private userRepository: UserRepository,
       private otpService: OtpService,
       private jwtService: JwtService,
-      private notificationService: NotificationService
+      private notificationService: NotificationService,
+      private profileService: ProfileService
     ) {
     }
 
@@ -40,6 +42,8 @@ export class AuthService {
 
         try {
             user = await this.userRepository.createUser(signUpCredentialsDto);
+            await this.profileService.createProfile(user);
+
             const otp: string = await this.otpService.getOTPCode(user);
             await this.sendEmail(user.email, otp);
         }catch (error) {
@@ -54,19 +58,22 @@ export class AuthService {
         this.logger.log(`signIn called`);
 
         const { email, password } = signInCredentialsDto;
-        const user = await this.getUserByEmail(email);
+        const user = await this.userRepository.findOne({
+            where: { email },
+            select: ['id', 'email', 'password']
+        });
 
         if (user && (await bcrypt.compare(password, user.password))) {
             const payload: JwtPayload = { id: user.id };
             const accessToken: string = this.jwtService.sign(payload);
+
+            this.logger.log(`User sign in successful - access token generated`);
+
             return { accessToken };
         } else {
+            this.logger.error(`User sign in is not successful`);
             throw new UnauthorizedException();
         }
-    }
-
-    async getUserByEmail(email: string): Promise<User> {
-        return await this.userRepository.findOne({ email })
     }
 
     async sendEmailOTP(user: User, resetCredentialsDto: ResetCredentialsDto): Promise<{message: string}> {
@@ -83,8 +90,7 @@ export class AuthService {
     }
 
     async confirmCode(confirmAccountDto: ConfirmAccountDto): Promise<void> {
-        const { otp } = confirmAccountDto;
-        const otpModel = await this.otpService.getOtpModel(otp);
+        const otpModel = await this.otpService.getOtpModel(confirmAccountDto.otp);
 
         if (!otpModel) {
             throw new BadRequestException(`OTP not found`);
@@ -96,7 +102,11 @@ export class AuthService {
             throw new BadRequestException(`OTP has expired`);
         }
 
-        const { user } = otpModel;
+        const user = await this.userRepository.findOne({
+            where: {id: otpModel.user.id},
+            select: ['id', 'isAccountConfirmed']
+        });
+
         if(user.isAccountConfirmed === false) {
             user.isAccountConfirmed = !user.isAccountConfirmed;
             await this.userRepository.save(user);

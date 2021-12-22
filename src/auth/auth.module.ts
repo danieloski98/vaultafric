@@ -13,14 +13,17 @@ import { NotificationService } from '../notification/notification.service';
 import { ProfileRepository } from './repository/profile.repository';
 import { ProfileService } from './service/profile.service';
 import { ProfileController } from './profile.controller';
+import { config } from 'dotenv';
+
+config();
 
 @Module({
   imports: [
     PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.register({
-      secret: 'my secret',
+      secret: process.env.JWT_KEY!,
       signOptions: {
-        expiresIn: "6hours"
+        expiresIn: process.env.EXPIRES_IN
       }
     }),
     TypeOrmModule.forFeature([UserRepository, OtpRepository, ProfileRepository])

@@ -50,7 +50,9 @@ export class OtpService {
   }
 
   async getOtpModel(otp: string): Promise<Otp> {
-    return await this.otpRepository.findOne({ otp });
+    return await this.otpRepository.findOne({
+      where: { otp }
+    });
   }
 
   async delete(otp: Otp) : Promise<void> {

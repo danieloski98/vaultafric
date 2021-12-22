@@ -26,9 +26,27 @@ export class ProfileService {
     return await this.repository.findOne({where: {user}});
   }
 
+  async getFullProfile(user: User): Promise<{}> {
+    this.logger.log(`Get user complete profile`);
+
+    const profileEntity = await this.repository.findOne({
+      where: {user},
+      relations: ['user']
+    });
+
+    const profile = {
+      ...profileEntity,
+      ...profileEntity.user
+    };
+    delete profile.user;
+
+    return profile;
+  }
+
   async updateAccountName(user: User, updateAccountNameDto: UpdateAccountNameDto) {
     this.logger.log('Update user account name started');
-    let profile = await this.getProfile(user) ?? this.repository.create({user});
+    let profile = await this.getProfile(user);
+
     const {firstname, lastname, othernames} = updateAccountNameDto;
 
     profile.otherNames = othernames;
@@ -85,4 +103,9 @@ export class ProfileService {
     this.logger.log('Update avatar completed');
   }
 
+  async createProfile(user: User) {
+    this.logger.log(`Create user profile`);
+    const profile = this.repository.create({user});
+    await this.repository.save(profile)
+  }
 }

@@ -17,9 +17,9 @@ export class User extends BaseEntity {
     @Column({unique: true})
     phoneNumber: string
 
-    @Column()
+    @Column({select: false})
     password: string;
 
-    @Column({ default: false })
+    @Column({ default: false, select: false })
     isAccountConfirmed: boolean;
 }
