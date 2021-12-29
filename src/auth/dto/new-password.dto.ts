@@ -2,6 +2,7 @@ import { IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-valid
 
 export class NewPasswordDto {
   @IsNotEmpty()
+  @IsString()
   otp: string;
 
   @IsNotEmpty()

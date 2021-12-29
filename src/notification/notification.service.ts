@@ -21,6 +21,8 @@ export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
   async sendOTP(email: string, otp: string): Promise<void> {
+    this.logger.log(`Sending email to ${email}...`);
+
     const text = `Your OTP code is ${otp}`;
     const html = `Your OTP code is <h3>${otp}</h3>`
 
@@ -35,6 +37,7 @@ export class NotificationService {
       this.logger.error(`Error sending email: ${error}`);
     }
 
+    this.logger.log(`...email sent`);
     await Promise.resolve();
   }
 

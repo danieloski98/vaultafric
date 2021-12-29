@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FixedSavingsRepository } from './fixed-savings.repository';
 import { User } from '../../auth/entity/user.entity';
@@ -12,20 +12,17 @@ export class FixedSavingsService {
   constructor(
     @InjectRepository(FixedSavingsRepository)
     private fixedSavingsRepository: FixedSavingsRepository
-  ) {
-
-    // schedule('* * * * * *', () => {
-    //   this.test()
-    // });
-  }
+  ) {}
 
   test() {
     console.log('Here\'s my running cron job');
   }
 
   async createSavings(user: User, fixedSavingsDto: FixedSavingsDto): Promise<void> {
-    if(fixedSavingsDto.start.getDate() > fixedSavingsDto.end.getDate()) {
-      throw new BadRequestException('Update date selection');
+    const { start, end } = fixedSavingsDto;
+
+    if(start > end) {
+      throw new BadRequestException(`Invalid date selection`);
     }
 
     return this.fixedSavingsRepository.newSavings(user, fixedSavingsDto);

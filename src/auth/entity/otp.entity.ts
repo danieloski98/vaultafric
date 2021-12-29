@@ -7,7 +7,7 @@ export class Otp extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, { eager: true })
+  @OneToOne(() => User, { eager: true, onDelete: 'CASCADE'})
   @JoinColumn()
   user: User;
 

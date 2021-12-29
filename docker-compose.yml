@@ -2,7 +2,7 @@ version: '3'
 
 services:
   be-vaultafrica:
-    image: vaultafrica/moneyvault:94b7e35
+    image: vaultafrica/moneyvault
     container_name: moneyvault-be
     restart: unless-stopped
     ports:
@@ -17,6 +17,9 @@ services:
       EMAIL_USER: ${EMAIL_USER}
       EMAIL_PASS: ${EMAIL_PASS}
       EMAIL_HOST: ${EMAIL_HOST}
+      EXPIRES_IN: ${EXPIRES_IN}
+      JWT_KEY: ${JWT_KEY}
+      OTP_EXPIRATION: ${OTP_EXPIRATION}
     depends_on:
       - db
 

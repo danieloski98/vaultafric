@@ -23,6 +23,11 @@ export class FixedDepositService {
   async deposit(user: User, fixedDepositDto: FixedDepositDto): Promise<void> {
     const { name, amount, duration } = fixedDepositDto;
     const { start, end } = await FixedDepositService.getStartEndDate(duration);
+
+    if(start > end) {
+      throw new BadRequestException(`Invalid date selection`);
+    }
+
     const deposit = await this.repository.create({name, amount, duration, start, end, user });
 
     await this.repository.save(deposit)

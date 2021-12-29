@@ -1,15 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Post, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
-import { ResetCredentialsDto } from './dto/reset-credentails.dto';
 import { SignUpCredentialsDto } from './dto/signup-credentials.dto';
 import { SignInCredentialsDto } from './dto/signin-credentails.dto';
-import { GetUser } from './get-user-decorator';
-import { User } from './entity/user.entity';
 import { NewPasswordDto } from './dto/new-password.dto';
-import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
 import { ConfirmAccountDto } from './dto/confirm-account.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { ResendOtpDto } from './dto/resend-otp.dto';
+import { SendOtpDto } from './dto/send-otp.dto';
+import { DeleteUserAccountDto } from './dto/delete-user-account.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,30 +25,32 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('resend/otp')
-  resendUserOtp(@Body(ValidationPipe) resendOtpDto: ResendOtpDto): Promise<{ message: string }> {
-    return this.authService.resendOtp(resendOtpDto);
+  resendUserOtp(@Body(ValidationPipe) sendOtpDto: SendOtpDto): Promise<{ message: string }> {
+    return this.authService.sendOtp(sendOtpDto);
   }
 
   @HttpCode(200)
   @Post('confirm/account')
-  confirmCode(@Body(ValidationPipe) confirmAccountDto: ConfirmAccountDto): Promise<void> {
+  confirmCode(@Body(ValidationPipe) confirmAccountDto: ConfirmAccountDto): Promise<{ message: string }> {
     return this.authService.confirmCode(confirmAccountDto);
   }
 
   @HttpCode(200)
   @Post('reset/password')
-  @UseGuards(AccountConfirmedGuard) 
-  @UseGuards(AuthGuard('jwt'))
-  reset(@GetUser() user: User, @Body(ValidationPipe) resetAccountDto: ResetCredentialsDto) : Promise<{message: string}> {
-    return this.authService.sendEmailOTP(user, resetAccountDto);
+  reset(@Body(ValidationPipe) sendOtpDto: SendOtpDto) : Promise<{message: string}> {
+    return this.authService.sendOtp(sendOtpDto);
   }
 
   @HttpCode(200)
   @Post('create/password')
-  @UseGuards(AccountConfirmedGuard)
-  @UseGuards(AuthGuard('jwt'))
-  createPassword(@Body(ValidationPipe) newPasswordDto: NewPasswordDto): Promise<void> {
+  createPassword(@Body(ValidationPipe) newPasswordDto: NewPasswordDto): Promise<{message: string}> {
     return this.authService.createNewPassword(newPasswordDto);
+  }
+
+  @HttpCode(200)
+  @Delete('delete')
+  deleteUserAccount(@Body(ValidationPipe) deleteAccountDto: DeleteUserAccountDto): Promise<{message: string}> {
+    return this.authService.deleteAccount(deleteAccountDto);
   }
 
 }
