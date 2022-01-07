@@ -25,6 +25,9 @@ export class ProfileEntity extends BaseEntity {
   @Column({nullable: true})
   avatar: string;
 
+  @Column({ nullable: true })
+  pin: number;
+
   @OneToOne(() => User, {onDelete: 'CASCADE'})
   @JoinColumn()
   user: User;

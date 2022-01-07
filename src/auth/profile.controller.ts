@@ -19,6 +19,7 @@ import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { ProfileService } from './service/profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { TransactionPinDto } from './dto/transaction-pin.dto';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -56,6 +57,12 @@ export class ProfileController {
   @Patch('avatar')
   updateAvatar(@GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.profileService.updateAvatar(user, file.buffer);
+  }
+
+  @HttpCode(200)
+  @Patch('pin')
+  updateTransactionPin(@GetUser() user: User, @Body(ValidationPipe) transactionPinDto: TransactionPinDto) {
+    return this.profileService.updateTransactionPin(user, transactionPinDto);
   }
 
   @Get()

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UseGuards } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UseGuards } from '@nestjs/common';
 import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../../auth/entity/user.entity';
@@ -15,12 +15,16 @@ import { MoreThan } from 'typeorm';
 @Injectable()
 export class FixedDepositService {
 
+  private readonly logger = new Logger(FixedDepositService.name, true);
+
   constructor(
     @InjectRepository(FixedDepositRepository)
     private repository: FixedDepositRepository
   ) {}
 
   async deposit(user: User, fixedDepositDto: FixedDepositDto): Promise<void> {
+    this.logger.log(`Create fixed deposit savings`);
+    
     const { name, amount, duration } = fixedDepositDto;
     const { start, end } = await FixedDepositService.getStartEndDate(duration);
 

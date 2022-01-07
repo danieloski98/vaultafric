@@ -5,8 +5,8 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
-  Post,
-  UseGuards,
+  Post, UploadedFile,
+  UseGuards, UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { GetUser } from '../../auth/get-user-decorator';
@@ -17,13 +17,18 @@ import { FixedSavingsService } from './fixed-savings.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
 import { ParseDatePipe } from '../pipe/ParseDate.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ParseIntPipe } from '../pipe/parse-int.pipe';
+import { WithdrawDto } from './dto/withdraw.dto';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
 @Controller('fixed-savings')
 export class FixedSavingsController {
+
   constructor(
-    private fixedSavingsService: FixedSavingsService) {
+    private fixedSavingsService: FixedSavingsService
+  ) {
   }
 
   @Get('transactions')
@@ -31,14 +36,14 @@ export class FixedSavingsController {
     return this.fixedSavingsService.getSavings(user);
   }
 
-  @Get('id/:id')
-  getFixedSavingsById(@GetUser() user: User, @Param('id', ParseUUIDPipe)id: string): Promise<FixedSavings> {
-    return this.fixedSavingsService.getSavingsById(user, id);
-  }
-
   @Get('completed')
   getCompletedFixedSavingsRecords(@GetUser() user: User): Promise<FixedSavings[]> {
     return this.fixedSavingsService.getCompletedFixedSavings(user);
+  }
+
+  @Post('withdraw')
+  withdrawSavings(@GetUser() user: User, @Body(ValidationPipe) withdrawDto: WithdrawDto): Promise<{ message: string }> {
+    return this.fixedSavingsService.withdrawSavings(user, withdrawDto);
   }
 
   @Get('active')
@@ -52,17 +57,26 @@ export class FixedSavingsController {
   }
 
   @Get('stop/:id')
-  stopFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  stopFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<{ message: string }> {
     return this.fixedSavingsService.stop(user, id);
   }
 
+  @UseInterceptors(FileInterceptor('avatar'))
   @Post()
-  newFixedSavings(@GetUser() user: User, @Body(ParseDatePipe, ValidationPipe) fixedSavingsDto: FixedSavingsDto): Promise<void> {
-    return this.fixedSavingsService.createSavings(user, fixedSavingsDto);
+  newFixedSavings(@GetUser() user: User,
+                  @Body(ParseDatePipe, ParseIntPipe, ValidationPipe) fixedSavingsDto: FixedSavingsDto,
+                  @UploadedFile() file: Express.Multer.File): Promise<{ message: string }> {
+    return this.fixedSavingsService.createSavings(user, fixedSavingsDto, file?.buffer);
   }
 
-  @Delete('/:id')
-  deleteFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  @Delete(':id')
+  deleteFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<{ message: string }> {
     return this.fixedSavingsService.deleteSavings(user, id);
   }
+
+  @Get(':id')
+  getFixedSavingsById(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<FixedSavings> {
+    return this.fixedSavingsService.getSavingsById(user, id);
+  }
+
 }

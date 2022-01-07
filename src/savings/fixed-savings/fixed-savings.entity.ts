@@ -1,8 +1,9 @@
 import { SavingsOccurrence } from '../../plan/base-plan';
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
 
 @Entity({name: 'FixedSavings'})
+@Unique('fixed-plan-unique-constraint', ['name', 'occurrence'])
 export class FixedSavings extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
@@ -32,6 +33,9 @@ export class FixedSavings extends BaseEntity {
   @Column()
   occurrence: SavingsOccurrence;
 
+  @Column({nullable: true})
+  avatar: string
+
   @ManyToOne(() => User, user => user.id, {nullable: false})
-  user: User
+  user: User;
 }

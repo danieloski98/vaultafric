@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import { UpdateAccountNameDto } from '../dto/update-accountName.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
@@ -7,6 +7,7 @@ import { UpdateEmailDto } from '../dto/update-email.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileRepository } from '../repository/profile.repository';
 import { UserRepository } from '../repository/user.repository';
+import { TransactionPinDto } from '../dto/transaction-pin.dto';
 
 @Injectable()
 export class ProfileService {
@@ -104,5 +105,25 @@ export class ProfileService {
     this.logger.log(`Create user profile`);
     const profile = this.repository.create({user});
     await this.repository.save(profile)
+  }
+
+  async updateTransactionPin(user: User, transactionPinDto: TransactionPinDto): Promise<{message: string}> {
+    this.logger.log(`Update transaction pin...`);
+    const {pin} = transactionPinDto;
+
+    const profile = await this.repository.findOne({
+      where: {user},
+      select: ['id', 'pin']
+    });
+
+    if(!profile){
+      throw new NotFoundException(`User not found`);
+    }
+
+    profile.pin = pin;
+    await this.repository.save(profile)
+
+    this.logger.log(`Transaction pin updated`);
+    return {message: `Pin changed successfully`};
   }
 }

@@ -14,15 +14,18 @@ import { UserRepository } from '../auth/repository/user.repository';
 import { NotificationService } from '../notification/notification.service';
 import { DollarSavingsController } from './dollar-savings/dollar-savings.controller';
 import { DollarSavingsService } from './dollar-savings/dollar-savings.service';
+import { ProfileRepository } from '../auth/repository/profile.repository';
+import { SavingsController } from './savings.controller';
+import { SavingsService } from './savings.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FixedSavingsRepository, FixedDepositRepository, JointSavingsRepository, UserRepository]),
+    TypeOrmModule.forFeature([FixedSavingsRepository, FixedDepositRepository, JointSavingsRepository, UserRepository, ProfileRepository]),
     AuthModule
   ],
   controllers: [
-    FixedDepositController, FixedSavingsController, JointSavingsController, DollarSavingsController
+    FixedDepositController, FixedSavingsController, JointSavingsController, DollarSavingsController, SavingsController
   ],
-  providers: [FixedSavingsService, FixedDepositService, JointSavingsService, NotificationService, DollarSavingsService]
+  providers: [FixedSavingsService, FixedDepositService, JointSavingsService, NotificationService, DollarSavingsService, SavingsService]
 })
 export class SavingsModule {}
