@@ -6,11 +6,13 @@ export class FixedDepositDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNumber({ allowNaN: false, maxDecimalPlaces: 0 })
+  @IsNumber()
   amount: number;
 
   @IsNotEmpty()
   @IsEnum(Duration)
   duration: Duration;
+
+  avatar: string;
 
 }

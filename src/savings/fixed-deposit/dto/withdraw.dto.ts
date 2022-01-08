@@ -1,8 +1,11 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export class WithdrawDto {
 
   @IsNotEmpty()
-  @IsNumber({maxDecimalPlaces:0, allowInfinity: false})
+  @IsNumber()
   amount: number;
+
+  @IsUUID()
+  id: string;
 }

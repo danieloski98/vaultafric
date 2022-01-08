@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Patch,
   UploadedFile,
   UseGuards,
@@ -28,38 +29,38 @@ export class ProfileController {
 
   constructor(private profileService: ProfileService) {}
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Patch('account/name')
   updateAccountName(@GetUser() user: User, @Body(ValidationPipe) updateAccountNameDto: UpdateAccountNameDto): Promise<void> {
     return this.profileService.updateAccountName(user, updateAccountNameDto);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Patch('address')
   updateAddress(@GetUser() user: User, @Body(ValidationPipe) updateAddress: UpdateAddressDto): Promise<void> {
     return this.profileService.updateAddress(user, updateAddress);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Patch('contact')
   updateContact(@GetUser() user: User, @Body(ValidationPipe) updateContactDto: UpdateContactDto): Promise<void> {
     return this.profileService.updateContact(user, updateContactDto);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Patch('email')
   updateEmail(@GetUser() user: User, @Body(ValidationPipe) updateEmailDto: UpdateEmailDto): Promise<void> {
     return this.profileService.updateEmail(user, updateEmailDto);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('avatar'))
   @Patch('avatar')
   updateAvatar(@GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.profileService.updateAvatar(user, file.buffer);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Patch('pin')
   updateTransactionPin(@GetUser() user: User, @Body(ValidationPipe) transactionPinDto: TransactionPinDto) {
     return this.profileService.updateTransactionPin(user, transactionPinDto);

@@ -3,7 +3,7 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique }
 import { User } from '../../auth/entity/user.entity';
 
 @Entity({name: 'FixedSavings'})
-@Unique('fixed-plan-unique-constraint', ['name', 'occurrence'])
+@Unique('fs-user-name-occurrence-unique-constraint', ['user', 'name', 'occurrence'])
 export class FixedSavings extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')

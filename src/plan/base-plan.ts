@@ -5,8 +5,8 @@ export enum SavingsOccurrence {
 }
 
 export enum Duration {
-  ThreeMonths = '3 Months',
-  SixMonths = '6 Months',
-  OneYear = '1 Year',
-  TwoYears = '2 Years'
+  ThreeMonths = '3 months',
+  SixMonths = '6 months',
+  OneYear = '1 year',
+  TwoYears = '2 years'
 }

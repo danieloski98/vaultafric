@@ -4,8 +4,8 @@ import {
   HttpCode, HttpStatus,
   Param,
   ParseUUIDPipe,
-  Post,
-  UseGuards,
+  Post, UploadedFile,
+  UseGuards, UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { Body, Controller} from '@nestjs/common';
@@ -17,6 +17,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
 import { FixedDeposit } from './fixed-deposit.entity';
 import { WithdrawDto } from './dto/withdraw.dto';
+import { ParseDatePipe } from '../pipe/ParseDate.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ParseIntPipe } from '../pipe/parse-int.pipe';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -24,10 +27,12 @@ import { WithdrawDto } from './dto/withdraw.dto';
 export class FixedDepositController {
   constructor(private fixedDepositService: FixedDepositService) {}
 
-  @HttpCode(HttpStatus.OK)
+
+  @UseInterceptors(FileInterceptor('avatar'))
   @Post()
-  addFixedDeposit(@GetUser() user: User, @Body(ValidationPipe) fixedDepositDto: FixedDepositDto): Promise<void> {
-    return this.fixedDepositService.deposit(user, fixedDepositDto);
+  addFixedDeposit(@GetUser() user: User, @Body(ParseDatePipe, ParseIntPipe, ValidationPipe) fixedDepositDto: FixedDepositDto,
+                  @UploadedFile() file: Express.Multer.File) {
+    return this.fixedDepositService.deposit(user, fixedDepositDto, file?.buffer);
   }
 
   @Get()
@@ -37,12 +42,12 @@ export class FixedDepositController {
 
   @HttpCode(HttpStatus.OK)
   @Post('withdraw')
-  withdrawRequest(@GetUser() user: User, @Body(ValidationPipe)withdrawDto: WithdrawDto): Promise<FixedDeposit|undefined> {
+  withdrawRequest(@GetUser() user: User, @Body(ValidationPipe)withdrawDto: WithdrawDto) {
     return this.fixedDepositService.withdraw(user, withdrawDto);
   }
 
   @Delete(':id')
-  deleteDeposit(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  deleteDeposit(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string) {
     return this.fixedDepositService.deleteDeposit(user, id);
   }
 

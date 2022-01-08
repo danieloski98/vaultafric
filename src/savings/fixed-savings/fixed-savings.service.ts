@@ -21,10 +21,6 @@ export class FixedSavingsService {
     private profileRepository: ProfileRepository
   ) {}
 
-  test() {
-    console.log('Here\'s my running cron job');
-  }
-
   async createSavings(user: User, fixedSavingsDto: FixedSavingsDto, avatar?: Buffer) {
     this.logger.log(`Create new fixed savings plan...`);
 
@@ -158,7 +154,7 @@ export class FixedSavingsService {
 
     if(savingsPlan.balance < amount) {
       this.logger.error(`Requested amount is greater than balance`)
-      throw new BadRequestException(`Your balance is less than requested amount`);
+      throw new BadRequestException(`Insufficient balance`);
     }
 
     // TODO get bank details, perform withdraw
