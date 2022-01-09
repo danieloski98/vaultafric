@@ -17,10 +17,15 @@ import { DollarSavingsService } from './dollar-savings/dollar-savings.service';
 import { ProfileRepository } from '../auth/repository/profile.repository';
 import { SavingsController } from './savings.controller';
 import { SavingsService } from './savings.service';
+import { DollarSavingsRepository } from './dollar-savings/dollar-savings.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FixedSavingsRepository, FixedDepositRepository, JointSavingsRepository, UserRepository, ProfileRepository]),
+    TypeOrmModule.forFeature([
+      FixedSavingsRepository, FixedDepositRepository,
+      JointSavingsRepository, UserRepository,
+      ProfileRepository, DollarSavingsRepository
+    ]),
     AuthModule
   ],
   controllers: [

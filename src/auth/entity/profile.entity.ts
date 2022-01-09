@@ -5,7 +5,7 @@ import { User } from './user.entity';
 export class ProfileEntity extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({nullable: true})
   otherNames: string;

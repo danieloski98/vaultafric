@@ -5,10 +5,8 @@ import { User } from '../../auth/entity/user.entity';
 import { FixedDepositDto } from './dto/fixed-deposit.dto';
 import { FixedDeposit } from './fixed-deposit.entity';
 import { FixedDepositRepository } from './fixed-deposit.repository';
-import { Duration } from '../../plan/base-plan';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WithdrawDto } from './dto/withdraw.dto';
-import { DateTime } from 'luxon';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -22,19 +20,23 @@ export class FixedDepositService {
     private repository: FixedDepositRepository
   ) {}
 
-  async deposit(user: User, fixedDepositDto: FixedDepositDto, file?: Buffer) {
+  async deposit(user: User, fixedDepositDto: FixedDepositDto, imageBuffer?: Buffer) {
     this.logger.log(`Create fixed deposit savings`);
 
-    if(file) {
+    if(imageBuffer) {
       this.logger.log(`Avatar file found - converting to base 64 string`);
-      fixedDepositDto.avatar = file.toString('base64');
+      fixedDepositDto.avatar = imageBuffer.toString('base64');
     }
     
-    const { name, amount, duration, avatar } = fixedDepositDto;
-    const { start, end } = await FixedDepositService.getStartEndDate(duration);
+    const { name, amount, start, end, avatar } = fixedDepositDto;
+
+    if(start > end) {
+      this.logger.error(`Invalid date selection: start: ${start}, end: ${end}`)
+      throw new BadRequestException(`Invalid date selection`);
+    }
 
     try {
-      const deposit = await this.repository.create({ name, amount, duration, start, end, avatar, user });
+      const deposit = await this.repository.create({ name, amount, start, end, avatar, user });
       await this.repository.save(deposit);
     }catch (e) {
       this.logger.error(`Error creating fixed deposit plan. ${e.message}`);
@@ -43,28 +45,6 @@ export class FixedDepositService {
     this.logger.log(`Fixed deposit plan started`);
 
     return {message: `'${name}' plan is now active`};
-  }
-
-  private static async getStartEndDate(duration: Duration): Promise<{start: Date, end: Date}> {
-    const start = DateTime.now().toJSDate();
-    let end: Date;
-
-    switch (duration) {
-      case Duration.ThreeMonths:
-        end = DateTime.now().plus({month: 3}).toJSDate();
-        break;
-      case Duration.SixMonths:
-        end = DateTime.now().plus({month: 6}).toJSDate();
-        break;
-      case Duration.OneYear:
-        end = DateTime.now().plus({year: 1}).toJSDate();
-        break;
-      case Duration.TwoYears:
-        end = DateTime.now().plus({year: 2}).toJSDate();
-        break;
-    }
-
-    return { start, end }
   }
 
   async getDeposits(user: User): Promise<FixedDeposit[]> {

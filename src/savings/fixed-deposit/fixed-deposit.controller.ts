@@ -20,6 +20,9 @@ import { WithdrawDto } from './dto/withdraw.dto';
 import { ParseDatePipe } from '../pipe/ParseDate.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntPipe } from '../pipe/parse-int.pipe';
+import {config} from "dotenv";
+
+config();
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -44,6 +47,11 @@ export class FixedDepositController {
   @Post('withdraw')
   withdrawRequest(@GetUser() user: User, @Body(ValidationPipe)withdrawDto: WithdrawDto) {
     return this.fixedDepositService.withdraw(user, withdrawDto);
+  }
+
+  @Get('interest/rate')
+  getInterestRate() {
+    return {rate: +process.env.FIXED_DEPOSIT_INTEREST_RATE};
   }
 
   @Delete(':id')

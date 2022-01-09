@@ -20,6 +20,9 @@ import { ParseDatePipe } from '../pipe/ParseDate.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntPipe } from '../pipe/parse-int.pipe';
 import { WithdrawDto } from './dto/withdraw.dto';
+import { config } from 'dotenv';
+
+config();
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -54,6 +57,11 @@ export class FixedSavingsController {
   @Get('inactive')
   getInactiveSavings(@GetUser() user: User): Promise<FixedSavings[]> {
     return this.fixedSavingsService.getInactiveSavings(user);
+  }
+
+  @Get('interest/rate')
+  getInterestRate() {
+    return {rate: +process.env.FIXED_SAVINGS_INTEREST_RATE};
   }
 
   @Get('stop/:id')
