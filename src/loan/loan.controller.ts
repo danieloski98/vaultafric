@@ -15,8 +15,13 @@ export class LoanController {
 
   @HttpCode(HttpStatus.OK)
   @Post()
-  getLoan(@GetUser() user: User, @Body(ValidationPipe) loanRequestDto: LoanRequestDto): Promise<void> {
-    return this.loanService.getLoan(user, loanRequestDto);
+  getLoan(@GetUser() user: User, @Body(ValidationPipe) loanRequestDto: LoanRequestDto) {
+    return this.loanService.loanRequest(user, loanRequestDto);
+  }
+
+  @Get('balance')
+  getAmountOwed(@GetUser() user: User) {
+    return this.loanService.getBalance(user);
   }
   
   @Get()

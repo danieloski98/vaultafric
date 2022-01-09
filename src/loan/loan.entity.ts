@@ -1,6 +1,5 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth/entity/user.entity';
-import { Duration } from '../plan/base-plan';
 
 @Entity({ name: 'Loan' })
 export class LoanEntity extends BaseEntity {
@@ -10,17 +9,23 @@ export class LoanEntity extends BaseEntity {
   @Column({ type: 'float', default: 0.3, nullable: false })
   interest: number;
 
-  @Column({ enum: Duration, length: 8 })
-  duration: Duration;
+  @Column({nullable: false})
+  start: Date;
 
-  @Column({ default: 0, nullable: false })
-  loanLimit: number;
+  @Column({nullable: false})
+  end: Date;
 
-  @Column({ type: 'int', default: 0.0, nullable: false })
+  @Column({nullable: false})
+  limit: number;
+
+  @Column({nullable: false, type: 'float'})
   serviceFee: number;
 
   @Column({ nullable: false })
   amount: number;
+
+  @Column({nullable: false})
+  balance: number;
 
   @ManyToOne(() => User, user => user.id, { nullable: false, eager: false })
   user: User;
