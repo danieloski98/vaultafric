@@ -6,6 +6,7 @@ import { User } from '../auth/entity/user.entity';
 import { LoanEntity } from './loan.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { AccountConfirmedGuard } from '../auth/guard/accountConfirmed.guard';
+import { PayLoanDto } from './dto/pay-loan.dto';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -22,6 +23,11 @@ export class LoanController {
   @Get('balance')
   getAmountOwed(@GetUser() user: User) {
     return this.loanService.getBalance(user);
+  }
+
+  @Post('pay')
+  payLoan(@GetUser() user: User, payLoanDto: PayLoanDto) {
+    return this.loanService.payLoan(user, payLoanDto);
   }
   
   @Get()

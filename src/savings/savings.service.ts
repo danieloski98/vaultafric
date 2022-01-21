@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FixedSavingsRepository } from './fixed-savings/fixed-savings.repository';
 import { FixedDepositRepository } from './fixed-deposit/fixed-deposit.repository';
 import { JointSavingsRepository } from './joint-savings/joint-savings.repository';
-import { User } from '../auth/entity/user.entity';
 
 @Injectable()
 export class SavingsService {
@@ -20,15 +19,21 @@ export class SavingsService {
     private jointSavingsRepository: JointSavingsRepository
   ) {}
 
-  async getAllSavingsBalance(user: User) {
-    const fixedSavingsBalance = await this.fixedSavingsRepository.findOne({
-      where: {user},
-      select: ['balance']
-    });
-
-    return fixedSavingsBalance.balance;
-  }
+  // async getAllSavingsBalance(user: User) {
+  //   const fixedSavings = await this.fixedSavingsRepository.findOne({
+  //     where: {user},
+  //     select: ['balance']
+  //   });
+  //
+  //   const fixedDeposit = await this.fixedDepositRepository.findOne({
+  //     where: {user},
+  //     select: ['balance']
+  //   });
+  //
+  //   return fixedDeposit.balance + fixedSavings.balance;
+  // }
 
   async getLatestTransaction() {
+    this.logger.log(`Get the latest transactions of all savings plan`)
   }
 }

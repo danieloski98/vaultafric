@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsInt, IsNotEmpty, IsUUID } from 'class-validator';
 
 export class WithdrawDto {
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
   amount: number;
 
   @IsUUID()

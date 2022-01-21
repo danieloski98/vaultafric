@@ -1,8 +1,7 @@
-import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '../jwt-payload.interface';
 import { UserRepository } from '../repository/user.repository';
 import { SignInCredentialsDto } from '../dto/signin-credentails.dto';
 import { SignUpCredentialsDto } from '../dto/signup-credentials.dto';
@@ -28,7 +27,7 @@ export class AuthService {
 
     private readonly logger = new Logger(AuthService.name, true);
 
-    async signUp(signUpCredentialsDto: SignUpCredentialsDto): Promise<{ message: string }> {
+    async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
         const { email, phoneNumber } = signUpCredentialsDto;
 
         let user = await this.userRepository.findOne({
@@ -36,24 +35,28 @@ export class AuthService {
         });
 
         if (user) {
-            throw new BadRequestException('User record exist');
+            throw new BadRequestException('User exist');
         }
 
+        let otp: number;
         try {
             user = await this.userRepository.createUser(signUpCredentialsDto);
             await this.profileService.createProfile(user);
 
-            const otp: string = await this.otpService.getOTP(user);
+            otp = await this.otpService.getOTP(user);
             await this.sendEmail(user.email, otp);
         }catch (error) {
             this.logger.error(`An error occurred: ${error}`);
             throw new BadRequestException('An error occurred. Please try again');
         }
 
-        return {message: `A confirmation code has been sent to ${email}`};
+        return {
+            message: `A confirmation code has been sent to ${email}`,
+            otp
+        };
     }
 
-    async signIn(signInCredentialsDto: SignInCredentialsDto): Promise<{ accessToken: string }> {
+    async signIn(signInCredentialsDto: SignInCredentialsDto) {
         this.logger.log(`signIn called`);
 
         const { email, password } = signInCredentialsDto;
@@ -63,19 +66,18 @@ export class AuthService {
         });
 
         if (user && (await bcrypt.compare(password, user.password))) {
-            const payload: JwtPayload = { id: user.id };
-            const accessToken: string = this.jwtService.sign(payload);
+            const accessToken: string = this.jwtService.sign({ id: user.id });
 
             this.logger.log(`User sign in successful - access token generated`);
 
             return { accessToken };
         } else {
             this.logger.error(`User sign in is not successful`);
-            throw new UnauthorizedException();
+            throw new BadRequestException(`Sign in failed`);
         }
     }
 
-    async confirmCode(confirmAccountDto: ConfirmAccountDto): Promise<{ message: string }> {
+    async confirmCode(confirmAccountDto: ConfirmAccountDto) {
         this.logger.log(`Confirm account started...`);
 
         const otpModel = await this.otpService.getOtpModel(confirmAccountDto.otp);
@@ -108,7 +110,7 @@ export class AuthService {
         return { message: "Your account has been confirmed." };
     }
 
-    async createNewPassword(newPasswordDto: NewPasswordDto): Promise<{message: string}> {
+    async createNewPassword(newPasswordDto: NewPasswordDto) {
         const otpModel = await this.otpService.getOtpModel(newPasswordDto.otp);
 
         if (!otpModel) {
@@ -125,28 +127,32 @@ export class AuthService {
         return {message: "New password saved"};
     }
 
-    async sendOtp(sendOtpDto: SendOtpDto): Promise<{ message: string }> {
+    async sendOtp(sendOtpDto: SendOtpDto) {
         const { email } = sendOtpDto;
 
         this.logger.log(`Send OTP to user: '${email}'`);
 
         const user = await this.userRepository.findOne({ email });
         if(!user) {
-            throw new NotFoundException(`User not found`);
+            throw new NotFoundException(`Email not found`);
         }
 
+        let otp: number;
         try{
-            const otp = await this.otpService.getOTP(user);
+            otp = await this.otpService.getOTP(user);
             await this.sendEmail(user.email, otp);
         }catch (e) {
             this.logger.error(`X Could not generate OTP for ${email}`);
             throw new BadRequestException(`Could not send OTP. Please try again`);
         }
 
-        return {message: "OTP has been sent to your email"};
+        return {
+            message: `OTP has been sent to your email`,
+            otp
+        };
     }
 
-    private async sendEmail(email: string, otp: string): Promise<void> {
+    private async sendEmail(email: string, otp: number) {
         await this.notificationService.sendOTP(email, otp);
     }
 

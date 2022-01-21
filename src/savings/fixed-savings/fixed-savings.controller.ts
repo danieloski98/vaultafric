@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { GetUser } from '../../auth/get-user-decorator';
 import { User } from '../../auth/entity/user.entity';
-import { FixedSavings } from './fixed-savings.entity';
 import { FixedSavingsDto } from './dto/fixed-savings.dto';
 import { FixedSavingsService } from './fixed-savings.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -35,27 +34,27 @@ export class FixedSavingsController {
   }
 
   @Get('transactions')
-  getFixedSavingsEntries(@GetUser() user: User): Promise<FixedSavings[]> {
+  getFixedSavingsEntries(@GetUser() user: User) {
     return this.fixedSavingsService.getSavings(user);
   }
 
   @Get('completed')
-  getCompletedFixedSavingsRecords(@GetUser() user: User): Promise<FixedSavings[]> {
+  getCompletedFixedSavingsRecords(@GetUser() user: User) {
     return this.fixedSavingsService.getCompletedFixedSavings(user);
   }
 
   @Post('withdraw')
-  withdrawSavings(@GetUser() user: User, @Body(ValidationPipe) withdrawDto: WithdrawDto): Promise<{ message: string }> {
+  withdrawSavings(@GetUser() user: User, @Body(ValidationPipe) withdrawDto: WithdrawDto) {
     return this.fixedSavingsService.withdrawSavings(user, withdrawDto);
   }
 
   @Get('active')
-  getActiveSavings(@GetUser() user: User): Promise<FixedSavings[]> {
+  getActiveSavings(@GetUser() user: User) {
     return this.fixedSavingsService.getActiveSavings(user);
   }
 
   @Get('inactive')
-  getInactiveSavings(@GetUser() user: User): Promise<FixedSavings[]> {
+  getInactiveSavings(@GetUser() user: User) {
     return this.fixedSavingsService.getInactiveSavings(user);
   }
 
@@ -65,7 +64,7 @@ export class FixedSavingsController {
   }
 
   @Get('stop/:id')
-  stopFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<{ message: string }> {
+  stopFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string) {
     return this.fixedSavingsService.stop(user, id);
   }
 
@@ -73,17 +72,17 @@ export class FixedSavingsController {
   @Post()
   newFixedSavings(@GetUser() user: User,
                   @Body(ParseDatePipe, ParseIntPipe, ValidationPipe) fixedSavingsDto: FixedSavingsDto,
-                  @UploadedFile() file: Express.Multer.File): Promise<{ message: string }> {
+                  @UploadedFile() file: Express.Multer.File) {
     return this.fixedSavingsService.createSavings(user, fixedSavingsDto, file?.buffer);
   }
 
   @Delete(':id')
-  deleteFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<{ message: string }> {
+  deleteFixedSavings(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string) {
     return this.fixedSavingsService.deleteSavings(user, id);
   }
 
   @Get(':id')
-  getFixedSavingsById(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string): Promise<FixedSavings> {
+  getFixedSavingsById(@GetUser() user: User, @Param('id', ParseUUIDPipe) id: string) {
     return this.fixedSavingsService.getSavingsById(user, id);
   }
 

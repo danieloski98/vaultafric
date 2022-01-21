@@ -13,11 +13,6 @@ export class SavingsController {
     private savingsService: SavingsService
   ) {}
 
-  @Get()
-  getSavings(@GetUser() user: User) {
-    return this.savingsService.getAllSavingsBalance(user);
-  }
-
   @Get('latest')
   getLatestTransactions(@GetUser() user: User) {
     return this.savingsService.getLatestTransaction();

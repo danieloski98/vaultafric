@@ -31,6 +31,10 @@ import { DollarSavingsRepository } from './dollar-savings/dollar-savings.reposit
   controllers: [
     FixedDepositController, FixedSavingsController, JointSavingsController, DollarSavingsController, SavingsController
   ],
-  providers: [FixedSavingsService, FixedDepositService, JointSavingsService, NotificationService, DollarSavingsService, SavingsService]
+  providers: [
+    FixedSavingsService, FixedDepositService,
+    JointSavingsService, NotificationService,
+    DollarSavingsService, SavingsService
+  ]
 })
 export class SavingsModule {}

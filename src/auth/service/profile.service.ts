@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import { UpdateAccountNameDto } from '../dto/update-accountName.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
@@ -26,7 +26,7 @@ export class ProfileService {
     return await this.repository.findOne({where: {user}});
   }
 
-  async getFullProfile(user: User): Promise<{}> {
+  async getFullProfile(user: User) {
     this.logger.log(`Get user complete profile`);
 
     const profileEntity = await this.repository.findOne({
@@ -57,6 +57,8 @@ export class ProfileService {
 
     await this.userRepository.save(user);
     this.logger.log('Update user account name completed');
+
+    return {message: `Account name updated`};
   }
 
   async updateAddress(user: User, updateAddress: UpdateAddressDto) {
@@ -71,6 +73,8 @@ export class ProfileService {
     await this.repository.save(profile);
 
     this.logger.log('Update user address completed');
+
+    return {message: `Address updated`};
   }
 
   async updateContact(user: User, updateContactDto: UpdateContactDto) {
@@ -80,6 +84,8 @@ export class ProfileService {
     await this.userRepository.save(user);
 
     this.logger.log('Update user contact completed');
+
+    return {message: `Contact updated`};
   }
 
   async updateEmail(user: User, updateEmailDto: UpdateEmailDto) {
@@ -89,16 +95,24 @@ export class ProfileService {
     await this.userRepository.save(user);
 
     this.logger.log('Update user email completed');
+
+    return {message: `Email updated`};
   }
 
-  async updateAvatar(user: User, buffer: Buffer) {
+  async updateAvatar(user: User, file: Express.Multer.File) {
     this.logger.log('Update user avatar');
 
+    if(!file) {
+      throw new BadRequestException(`Cannot open file`);
+    }
+
     let profile = await this.getProfile(user);
-    profile.avatar  = buffer.toString('base64');
+    profile.avatar  = file.buffer.toString('base64');
     await this.repository.save(profile);
 
     this.logger.log('Update avatar completed');
+
+    return {message: `Profile image updated`};
   }
 
   async createProfile(user: User) {
@@ -107,7 +121,7 @@ export class ProfileService {
     await this.repository.save(profile)
   }
 
-  async updateTransactionPin(user: User, transactionPinDto: TransactionPinDto): Promise<{message: string}> {
+  async updateTransactionPin(user: User, transactionPinDto: TransactionPinDto) {
     this.logger.log(`Update transaction pin...`);
     const {pin} = transactionPinDto;
 
@@ -124,6 +138,10 @@ export class ProfileService {
     await this.repository.save(profile)
 
     this.logger.log(`Transaction pin updated`);
-    return {message: `Pin changed successfully`};
+
+    return {
+      message: `Pin changed successfully`,
+      pin
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Duration } from '../plan/base-plan';
 
 @Entity({ name: 'Investment' })
@@ -26,9 +26,9 @@ export class InvestmentEntity extends BaseEntity {
   start: Date;
 
   @Column({ name: 'MaturityDate', nullable: false })
-  maturity: Date;
+  end: Date;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 'None' })
   riskLevel: string;
 
   @Column({ nullable: false })
@@ -39,5 +39,14 @@ export class InvestmentEntity extends BaseEntity {
 
   @Column({ default: false, nullable: false })
   isActive: boolean;
+
+  @Column({ nullable: true })
+  avatar: string;
+
+  @CreateDateColumn({ type: 'timestamp', select: false})
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', select: false})
+  updatedAt: Date;
 
 }

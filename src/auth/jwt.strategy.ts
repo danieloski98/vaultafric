@@ -37,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException(`Error in logging in`);
       }
 
-      this.logger.log(`JWT validated - user approved`);
+      this.logger.log(`JWT validated`);
 
       return user;
   }

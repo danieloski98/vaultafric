@@ -20,7 +20,7 @@ export class NotificationService {
 
   private readonly logger = new Logger(NotificationService.name);
 
-  async sendOTP(email: string, otp: string): Promise<void> {
+  async sendOTP(email: string, otp: number): Promise<void> {
     this.logger.log(`Sending email to ${email}...`);
 
     const text = `Your OTP code is ${otp}`;

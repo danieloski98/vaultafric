@@ -40,13 +40,15 @@ export class DollarSavingsController {
 
   @HttpCode(HttpStatus.OK)
   @Post('buy')
-  buyDollars(@GetUser() user: User, @Body(ParseIntPipe, ValidationPipe) dollarOpsDto: DollarOpsDto) {
+  buyDollars(@GetUser() user: User,
+             @Body(ParseIntPipe, ValidationPipe) dollarOpsDto: DollarOpsDto) {
     return this.dollarService.buyDollar(user, dollarOpsDto);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('convert')
-  convertDollars(@GetUser() user: User, @Body(ParseIntPipe, ValidationPipe) dollarToNairaDto: DollarToNairaDto) {
+  convertDollars(@GetUser() user: User,
+                 @Body(ParseIntPipe, ValidationPipe) dollarToNairaDto: DollarToNairaDto) {
     return this.dollarService.convertDollars(user, dollarToNairaDto);
   }
 
@@ -62,15 +64,14 @@ export class DollarSavingsController {
 
   @HttpCode(HttpStatus.OK)
   @Post('transfer')
-  transferDollarToVaulters(@GetUser() user: User, @Body(ValidationPipe) transferDollarDto: TransferDollarDto) {
+  transferDollarToVaulters(@GetUser() user: User,
+                           @Body(ValidationPipe) transferDollarDto: TransferDollarDto) {
     return this.dollarService.transferDollar(transferDollarDto);
   }
 
   @Get('find/vaulter/:usernameStub')
-  findVaulter(@Param('usernameStub') usernameStub: string): Promise<User> {
+  findVaulter(@Param('usernameStub') usernameStub: string) {
     return this.dollarService.findVaulter(usernameStub);
   }
-
-
 
 }

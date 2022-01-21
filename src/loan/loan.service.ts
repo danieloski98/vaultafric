@@ -7,6 +7,8 @@ import { LoanRequestDto } from './dto/loan-request.dto';
 import { Duration } from '../plan/base-plan';
 import { DateTime } from 'luxon';
 import {config} from 'dotenv';
+import { PayLoanDto } from './dto/pay-loan.dto';
+import { ProfileRepository } from '../auth/repository/profile.repository';
 
 config();
 
@@ -16,7 +18,10 @@ export class LoanService {
 
   constructor(
     @InjectRepository(LoanRepository)
-    private loanRepository: LoanRepository
+    private loanRepository: LoanRepository,
+
+    @InjectRepository(ProfileRepository)
+    private profileRepository: ProfileRepository
   ) {}
 
   async getHistory(user: User): Promise<LoanEntity[]> {
@@ -86,6 +91,24 @@ export class LoanService {
     }
 
     this.logger.log(`Date range calculated... ${start} - ${end}`)
+
     return {start, end};
+  }
+
+  async payLoan(user: User, payLoanDto: PayLoanDto) {
+    this.logger.log(`Repay loan`);
+
+    const { pin, amount, card } = payLoanDto;
+
+    const profile = await this.profileRepository.findOne({
+      where: [{user, pin}]
+    });
+
+    if(!profile) {
+      throw new BadRequestException(`Invalid transaction pin`);
+    }
+
+
+
   }
 }

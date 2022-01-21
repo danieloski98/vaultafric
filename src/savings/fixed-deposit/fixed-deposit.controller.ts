@@ -33,7 +33,8 @@ export class FixedDepositController {
 
   @UseInterceptors(FileInterceptor('avatar'))
   @Post()
-  addFixedDeposit(@GetUser() user: User, @Body(ParseDatePipe, ParseIntPipe, ValidationPipe) fixedDepositDto: FixedDepositDto,
+  addFixedDeposit(@GetUser() user: User,
+                  @Body(ParseIntPipe, ParseDatePipe, new ValidationPipe({transform: true})) fixedDepositDto: FixedDepositDto,
                   @UploadedFile() file: Express.Multer.File) {
     return this.fixedDepositService.deposit(user, fixedDepositDto, file?.buffer);
   }

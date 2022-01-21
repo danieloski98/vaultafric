@@ -25,7 +25,7 @@ export class ProfileEntity extends BaseEntity {
   @Column({nullable: true})
   avatar: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   pin: number;
 
   @OneToOne(() => User, {onDelete: 'CASCADE'})

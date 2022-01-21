@@ -45,7 +45,7 @@ export class OtpService {
     return { otp, expiresIn };
   }
 
-  async getOTP(user: User): Promise<string> {
+  async getOTP(user: User): Promise<number> {
     const { otp, expiresIn } = this.generateOTP();
 
     // get existing OTP or create new
@@ -62,7 +62,7 @@ export class OtpService {
     return otpModel.otp;
   }
 
-  async getOtpModel(otp: string): Promise<Otp> {
+  async getOtpModel(otp: number): Promise<Otp> {
     this.logger.log(`Find otp model...`);
 
     const model = await this.otpRepository.findOne({

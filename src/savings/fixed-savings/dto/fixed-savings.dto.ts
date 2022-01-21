@@ -1,24 +1,20 @@
 import { SavingsOccurrence } from '../../../plan/base-plan';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { DateTime } from "luxon";
+import { IsDate, IsEnum, IsInt, IsNotEmpty} from 'class-validator';
 
 export class FixedSavingsDto {
 
-  @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
   @IsDate()
   start: Date;
 
-  @IsNotEmpty()
   @IsDate()
   end: Date;
 
   avatar: string;
 
-  @IsNumber()
+  @IsInt()
   amount: number;
 
   @IsEnum(SavingsOccurrence)

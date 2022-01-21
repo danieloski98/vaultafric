@@ -12,7 +12,7 @@ export class Otp extends BaseEntity {
   user: User;
 
   @Column({nullable: false})
-  otp: string;
+  otp: number;
 
   @Column({nullable: false, type: 'bigint'})
   expiresIn: number;

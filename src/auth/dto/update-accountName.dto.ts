@@ -1,14 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateAccountNameDto {
 
-  @IsString()
   @IsNotEmpty()
   firstname: string;
 
+  @IsOptional()
   othernames: string;
 
-  @IsString()
   @IsNotEmpty()
   lastname: string;
 }

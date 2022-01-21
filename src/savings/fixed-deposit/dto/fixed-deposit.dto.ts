@@ -1,7 +1,6 @@
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class FixedDepositDto {
-  @IsString()
   @IsNotEmpty()
   name: string;
 

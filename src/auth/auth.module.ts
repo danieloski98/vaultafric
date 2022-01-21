@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthController } from './auth.controller';
+import { AuthController } from './controller/auth.controller';
 import { AuthService } from './service/auth.service';
 import { UserRepository } from './repository/user.repository';
 import { PassportModule } from '@nestjs/passport';
@@ -12,7 +12,7 @@ import { AccountConfirmedGuard } from './guard/accountConfirmed.guard';
 import { NotificationService } from '../notification/notification.service';
 import { ProfileRepository } from './repository/profile.repository';
 import { ProfileService } from './service/profile.service';
-import { ProfileController } from './profile.controller';
+import { ProfileController } from './controller/profile.controller';
 import { config } from 'dotenv';
 
 config();

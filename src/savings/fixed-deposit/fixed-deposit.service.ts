@@ -1,15 +1,18 @@
-import { BadRequestException, Injectable, Logger, NotFoundException, UseGuards } from '@nestjs/common';
-import { AccountConfirmedGuard } from '../../auth/guard/accountConfirmed.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { BadRequestException, Injectable, Logger, NotFoundException} from '@nestjs/common';
 import { User } from '../../auth/entity/user.entity';
 import { FixedDepositDto } from './dto/fixed-deposit.dto';
 import { FixedDeposit } from './fixed-deposit.entity';
 import { FixedDepositRepository } from './fixed-deposit.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WithdrawDto } from './dto/withdraw.dto';
+import { InvalidDateException } from '../../exception/invalid-date.exception';
+import { InsufficientBalanceException } from '../../exception/insufficient-balance.exception';
+import { InvalidWithdrawAmountException } from '../../exception/invalid-withdraw-amount.exception';
+import {
+  DuplicateFixedDepositException,
+  FixedDepositNotFoundException,
+} from '../../exception/fixed-deposit.exception';
 
-@UseGuards(AccountConfirmedGuard)
-@UseGuards(AuthGuard('jwt'))
 @Injectable()
 export class FixedDepositService {
 
@@ -32,8 +35,14 @@ export class FixedDepositService {
 
     if(start > end) {
       this.logger.error(`Invalid date selection: start: ${start}, end: ${end}`)
-      throw new BadRequestException(`Invalid date selection`);
+      throw new InvalidDateException();
     }
+
+    const fixedRecords = await this.repository.find({
+      where: {user, name, start, end}
+    });
+
+    if(fixedRecords.length > 0) throw new DuplicateFixedDepositException();
 
     try {
       const deposit = await this.repository.create({ name, amount, start, end, avatar, user });
@@ -65,14 +74,18 @@ export class FixedDepositService {
     this.logger.log(`Withdrawal initiated for fixed deposit`)
     const { id, amount } = withdrawDto;
 
+    if(amount == 0) throw new InvalidWithdrawAmountException();
+
     const deposit = await this.repository.findOne({
       where: { user, id },
       select: ['id', 'balance']
     });
 
+    if(!deposit) throw new FixedDepositNotFoundException();
+
     if(deposit.balance < amount){
       this.logger.error(`Insufficient balance`);
-      throw new BadRequestException('Insufficient balance')
+      throw new InsufficientBalanceException();
     }
 
     deposit.balance -= amount;
@@ -91,7 +104,7 @@ export class FixedDepositService {
 
     if(!fdPlan) {
       this.logger.error(`Fixed deposit plan not found`);
-      throw new NotFoundException(`Could not find fixed deposit plan`);
+      throw new FixedDepositNotFoundException();
     }
     await this.repository.delete(fdPlan);
 

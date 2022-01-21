@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class NewPasswordDto {
   @IsNotEmpty()
-  @IsString()
-  otp: string;
+  @IsNumber({}, {message: 'Invalid OTP'})
+  otp: number;
 
   @IsNotEmpty()
   @IsString()
