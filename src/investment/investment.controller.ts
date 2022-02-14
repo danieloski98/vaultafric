@@ -1,9 +1,8 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, HttpCode, HttpStatus,
   Param,
-  ParseIntPipe,
   Post, UploadedFile,
   UseGuards, UseInterceptors,
   ValidationPipe,
@@ -26,6 +25,7 @@ export class InvestmentController {
 
   constructor(private investmentService: InvestmentService) {}
 
+  @HttpCode(HttpStatus.OK )
   @Post()
   invest(@GetUser() user: User,
          @Body(new ValidationPipe({transform: true})) newUserInvestmentDto: NewUserInvestmentDto) {

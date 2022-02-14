@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInvestmentRepository } from './user-investment-repository';
 import { NewUserInvestmentDto } from './dto/new-user-investment.dto';
@@ -6,16 +6,13 @@ import { User } from '../auth/entity/user.entity';
 import { InvestmentRepository } from './investment-repository';
 import { RegisterInvestmentDto } from './dto/register-investment.dto';
 import { InvestmentNotFoundException } from 'src/exception/investment-not-found-exception';
-import { ProfileRepository } from '../auth/repository/profile.repository';
 import { DuplicateInvestmentException } from '../exception/duplicate-investment-exception';
 import { InActiveInvestmentException } from '../exception/in-active-investment-exception';
 import { InvalidInvestmentAmountException } from '../exception/invalid-investment-amount-exception';
 import { TransactionPinMismatchException } from '../exception/transaction-pin-mismatch.exception';
 import { PaymentMethodsEnum } from './payment-methods.enum';
-import { FixedDepositRepository } from '../savings/fixed-deposit/fixed-deposit.repository';
-import { FixedSavingsRepository } from '../savings/fixed-savings/fixed-savings.repository';
-import { InsufficientBalanceException } from '../exception/insufficient-balance.exception';
-import { SavingsAccountNotFoundException } from '../exception/savings-account-not-found-exception';
+import { SavingsService } from '../savings/savings.service';
+import { ProfileService } from '../auth/service/profile.service';
 
 @Injectable()
 export class InvestmentService {
@@ -28,20 +25,21 @@ export class InvestmentService {
     @InjectRepository(InvestmentRepository)
     private investmentRepository: InvestmentRepository,
 
-    @InjectRepository(ProfileRepository)
-    private profileRepository: ProfileRepository,
-
-    @InjectRepository(FixedDepositRepository)
-    private fixedDepositRepository: FixedDepositRepository,
-
-    @InjectRepository(FixedSavingsRepository)
-    private fixedSavingsRepository: FixedSavingsRepository
+    private savingsService: SavingsService,
+    private profileService: ProfileService
   ) {}
 
   async invest(user: User, newUserInvestmentDto: NewUserInvestmentDto) {
-    const { investmentId, amount, unit, pin, paymentMethod, savingsId } = newUserInvestmentDto;
+    const { investmentId, amount, unit, pin, paymentMethod, interest, savingsId } = newUserInvestmentDto;
     const investment = await this.getInvestmentById(investmentId);
 
+    // throw exception if investment is inactive
+    if(!investment.isActive) {
+      this.logger.error(`Inactive investment selected`);
+      throw new InActiveInvestmentException();
+    }
+
+    // throw exception if amount is 0
     if(amount === 0) {
       this.logger.log(`Invalid investment amount entered`);
       throw new InvalidInvestmentAmountException();
@@ -51,48 +49,34 @@ export class InvestmentService {
       where: {user, investment}
     });
 
+    // throw exception if duplicate investment
     if(existingInvestment) {
       this.logger.error(`Duplicate investment`);
       throw new DuplicateInvestmentException();
     }
 
-    if(!investment.isActive) {
-      this.logger.error(`Inactive investment selected`);
-      throw new InActiveInvestmentException();
-    }
-
-    const profile = await this.profileRepository.findOne({
-      where: {user},
-      select: ['id', 'pin']
-    })
-
-    if(profile.pin !== pin) {
+    const { transactionPin } = await this.profileService.getPin(user);
+    // throw exception if pin does not match
+    if(transactionPin !== pin) {
       this.logger.error(`Transaction pin mismatch`);
       throw new TransactionPinMismatchException();
     }
 
     // TODO: Get the money from the prefer method of payment, do a debit
-    if(paymentMethod == PaymentMethodsEnum.SavingsAccount) {
+    // withdraw money from savings account
 
-      // const account = await this.getSavings(savingsId);
-      // if(!account) {
-      //   throw new SavingsAccountNotFoundException();
-      // }
-      //
-      // if(account.balance < amount) {
-      //   this.logger.error(`Insufficient balance`);
-      //   throw new InsufficientBalanceException();
-      // }
+    this.logger.log(`Payment method selected '${paymentMethod}'`);
+    if(paymentMethod == PaymentMethodsEnum.SavingsAccount) {
+      // this.logger.log(`Withdraw ${amount} from ${user.id} account`);
+      await this.savingsService.withdraw(user, savingsId, amount);
+    } else {
+      // TODO: Withdraw from card
     }
 
-    return this.userInvestmentRepository.create({investment,  user, amount, unit, paymentMethod});
+    const userInvestment = this.userInvestmentRepository.create({investment, interest, user, amount, unit, paymentMethod, savingsId});
+    await this.userInvestmentRepository.save(userInvestment);
 
-    // try {
-    //   return await this.userInvestmentRepository.save(userInvestment);
-    // }catch(err) {
-    //   this.logger.error(err);
-    //   throw new BadRequestException('Could not complete investment process. Please try again later.')
-    // }
+    return {message: `Investment into ${investment.title} was successful`};
   }
 
   async getInvestmentById(id: string) {
@@ -130,14 +114,4 @@ export class InvestmentService {
 
     return {message: `New investment saved`};
   }
-
-  private async getSavings(savingsId: string) {
-    let savingsAccount;
-
-    savingsAccount = await this.fixedSavingsRepository.findOne({where: {id: savingsId}, select: ['id', 'balance']});
-    if(!savingsAccount) savingsAccount = await this.fixedDepositRepository.findOne({where: {id: savingsId}, select: ['id', 'balance']});
-
-    return savingsAccount;
-  }
-
 }

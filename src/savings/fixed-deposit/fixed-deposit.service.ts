@@ -112,4 +112,17 @@ export class FixedDepositService {
 
     return {message: `'${fdPlan.name}' has been deleted`};
   }
+
+  async getAccountBalance(id: string, user: User) {
+    this.logger.log(`Get account balance for ${id}`);
+
+    return this.repository.findOne({
+      where: {id, user},
+      select: ['id', 'balance']
+    });
+  }
+
+  async updateAccountBalance(id: string, balance: number) {
+    await this.repository.save({id, balance})
+  }
 }

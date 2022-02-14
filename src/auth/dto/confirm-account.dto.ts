@@ -1,8 +1,8 @@
-import { IsNumber } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class ConfirmAccountDto {
 
-  @IsNumber({}, {message: 'Invalid OTP'})
+  @IsInt({message: `Invalid OTP`})
   otp: number;
   
 }

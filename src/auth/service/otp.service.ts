@@ -78,7 +78,12 @@ export class OtpService {
 
   async delete(otp: Otp) : Promise<void> {
     this.logger.log(`Delete otp: ${otp.otp}`)
-    await this.otpRepository.remove(otp);
+    try{
+      await this.otpRepository.remove(otp);
+    }catch (e) {
+      this.logger.error(e);
+    }
+    this.logger.log(`OTP deleted;`)
   }
   
   private static getExpiration(minute: number): number {

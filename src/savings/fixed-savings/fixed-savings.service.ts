@@ -211,4 +211,16 @@ export class FixedSavingsService {
     return { message: `Your withdrawal is being processed` };
   }
 
+  async getAccountBalance(id: string, user: User) {
+    this.logger.log(`Get account balance for ${id}`);
+
+    return this.fixedSavingsRepository.findOne({
+      where: {id, user},
+      select: ['id', 'balance']
+    });
+  }
+
+  async updateAccountBalance(id: string, balance: number) {
+    await this.fixedSavingsRepository.save({id, balance});
+  }
 }

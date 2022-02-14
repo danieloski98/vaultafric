@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileRepository } from '../repository/profile.repository';
 import { UserRepository } from '../repository/user.repository';
 import { TransactionPinDto } from '../dto/transaction-pin.dto';
+import { TransactionPinNotFoundException } from '../../exception/transaction-pin-not-found.exception';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class ProfileService {
@@ -41,6 +43,10 @@ export class ProfileService {
     delete profile.user;
 
     return profile;
+  }
+
+  findConfirmedProfiles(ids: string) {
+
   }
 
   async updateAccountName(user: User, updateAccountNameDto: UpdateAccountNameDto) {
@@ -121,6 +127,20 @@ export class ProfileService {
     await this.repository.save(profile)
   }
 
+  async getPin(user: User): Promise<{transactionPin: number}> {
+    this.logger.log(`Get pin for user ${user.id}`);
+    const profile = await this.repository.findOne({
+      where: {user},
+      select: ['pin']
+    });
+
+    if(!profile.pin) {
+      throw new TransactionPinNotFoundException();
+    }
+
+    return {transactionPin: profile.pin};
+  }
+
   async updateTransactionPin(user: User, transactionPinDto: TransactionPinDto) {
     this.logger.log(`Update transaction pin...`);
     const {pin} = transactionPinDto;
@@ -139,9 +159,25 @@ export class ProfileService {
 
     this.logger.log(`Transaction pin updated`);
 
-    return {
-      message: `Pin changed successfully`,
-      pin
-    };
+    return { message: `Pin changed successfully`, pin };
+  }
+
+  async findConfirmedVaultersByPhone(phone: string) {
+    this.logger.log(`Find confirmed vaulters with phone like ${phone}`);
+
+    const users = await this.userRepository.find({
+      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname'],
+      where: {phoneNumber: Like(`%${phone}%`), isAccountConfirmed: true}
+    });
+
+    this.logger.log(`${users.length} confirmed vaulters with phone like ${phone} found`);
+
+    return users;
+  }
+
+  async exist(user: User) {
+    return (await this.userRepository.count({
+      where: {id: user.id, email: user.email, isAccountConfirmed: true}
+    })) > 0;
   }
 }

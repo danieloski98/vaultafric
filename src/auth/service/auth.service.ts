@@ -12,6 +12,7 @@ import { NotificationService } from '../../notification/notification.service';
 import { SendOtpDto } from '../dto/send-otp.dto';
 import { ProfileService } from './profile.service';
 import { DeleteUserAccountDto } from '../dto/delete-user-account.dto';
+import { OnePipeService } from '../../onepipe/one-pipe.service';
 
 @Injectable()
 export class AuthService {
@@ -21,34 +22,28 @@ export class AuthService {
       private otpService: OtpService,
       private jwtService: JwtService,
       private notificationService: NotificationService,
-      private profileService: ProfileService
-    ) {
-    }
+      private profileService: ProfileService,
+      private onePipeService: OnePipeService
+    ) {}
 
     private readonly logger = new Logger(AuthService.name, true);
 
     async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
+        this.logger.log(`New user signup...`);
+
         const { email, phoneNumber } = signUpCredentialsDto;
 
-        let user = await this.userRepository.findOne({
-            where: [{ email }, { phoneNumber }]
-        });
+        const userExist = await this.userRepository.recordExist({email, phoneNumber})
 
-        if (user) {
+        if (userExist) {
             throw new BadRequestException('User exist');
         }
 
-        let otp: number;
-        try {
-            user = await this.userRepository.createUser(signUpCredentialsDto);
-            await this.profileService.createProfile(user);
+        const user = await this.userRepository.createUser(signUpCredentialsDto);
+        await this.profileService.createProfile(user);
 
-            otp = await this.otpService.getOTP(user);
-            await this.sendEmail(user.email, otp);
-        }catch (error) {
-            this.logger.error(`An error occurred: ${error}`);
-            throw new BadRequestException('An error occurred. Please try again');
-        }
+        const otp = await this.otpService.getOTP(user);
+        await this.sendEmail(user.email, otp);
 
         return {
             message: `A confirmation code has been sent to ${email}`,
@@ -94,7 +89,7 @@ export class AuthService {
 
         const user = await this.userRepository.findOne({
             where: {id: otpModel.user.id},
-            select: ['id', 'isAccountConfirmed']
+            select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname', 'isAccountConfirmed']
         });
 
         if(user.isAccountConfirmed === false) {
@@ -103,8 +98,18 @@ export class AuthService {
             user.isAccountConfirmed = !user.isAccountConfirmed;
             await this.userRepository.save(user);
         }
-
         await this.otpService.delete(otpModel);
+
+        // connection to onepipe api
+        // await this.onePipeService.openAccount({
+        //     email: user.email,
+        //     mobile_no: user.phoneNumber,
+        //     surname: user.lastname,
+        //     firstname: user.firstname,
+        //     customer_ref: user.id
+        // },{
+        //     name_on_account: `${user.firstname} ${user.lastname}`,
+        // });
 
         this.logger.log(`...confirm account completed; account is confirmed`);
         return { message: "Your account has been confirmed." };

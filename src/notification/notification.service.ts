@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import {config} from "dotenv";
+import { EmailNotSentException } from '../exception/email-not-sent-exception';
 
 config();
 
@@ -11,7 +12,6 @@ const transport = nodemailer.createTransport({
     user: process.env.EMAIL_USER!,
     pass: process.env.EMAIL_PASS!
   },
-  logger: true,
   connectionTimeout: +process.env.CONNECTION_TIMEOUT
 });
 
@@ -27,6 +27,8 @@ export class NotificationService {
     const html = `Your OTP code is <h3>${otp}</h3>`
 
     try {
+      this.logger.log(`Sending email...`);
+
       await transport.sendMail({
         from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
         subject: 'VaultAfrica OTP Code',
@@ -35,10 +37,33 @@ export class NotificationService {
       });
     }catch(error) {
       this.logger.error(`Error sending email: ${error}`);
+      throw new EmailNotSentException();
     }
 
     this.logger.log(`...email sent`);
     await Promise.resolve();
+  }
+
+  async sendJointSavingsInvitation(content: string, emails: Array<string>){
+    const html = `<p>${content}</p>`;
+    const text = content;
+
+    try{
+      this.logger.log(`Sending email...`);
+
+        await transport.sendMail({
+          from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
+          subject: `JointSavings Group Invitation`,
+          text, html,
+          bcc: emails
+        });
+
+        this.logger.log(`...email sent`);
+    }catch (e) {
+      this.logger.error(`Error sending email: ${e}`);
+      throw new EmailNotSentException();
+    }
+
   }
 
 }

@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { InsuranceModule } from './insurance/insurance.module';
 import { NotificationModule } from './notification/notification.module';
 import { CardModule } from './card/card.module';
+import { OnepipeModule } from './onepipe/onepipe.module';
 
 @Module({
   imports: [
@@ -21,11 +22,11 @@ import { CardModule } from './card/card.module';
       database: process.env.DB_NAME || 'money-vault',
       autoLoadEntities: true,
       synchronize: true, // TODO: should not be used in prod.
-      // logging: true
     }),
     InsuranceModule,
     NotificationModule,
-    CardModule
+    CardModule,
+    OnepipeModule
   ],
 })
 export class AppModule {}

@@ -22,7 +22,7 @@ export class UserInvestmentEntity extends BaseEntity {
   balance: number;
 
   @Column()
-  expected: number;
+  interest: number;
 
   @Column({nullable: false})
   paymentMethod: PaymentMethodsEnum;
@@ -30,11 +30,8 @@ export class UserInvestmentEntity extends BaseEntity {
   @Column()
   unit: number;
 
-  @ManyToOne(() => FixedSavings, fd => fd.id)
-  fixedSavings: FixedSavings;
-
-  @ManyToOne(() => FixedDeposit, fd => fd.id)
-  fixedDeposit: FixedDeposit;
+  @Column({name: 'SavingsAccountRef'})
+  savingsId: string;
 
   @ManyToOne(() => User, user => user.id)
   user: User;

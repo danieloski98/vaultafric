@@ -14,11 +14,14 @@ import { ProfileRepository } from './repository/profile.repository';
 import { ProfileService } from './service/profile.service';
 import { ProfileController } from './controller/profile.controller';
 import { config } from 'dotenv';
+import { OnePipeService } from '../onepipe/one-pipe.service';
+import { HttpModule } from '@nestjs/axios';
 
 config();
 
 @Module({
   imports: [
+    HttpModule,
     PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.register({
       secret: process.env.JWT_KEY!,
@@ -29,7 +32,11 @@ config();
     TypeOrmModule.forFeature([UserRepository, OtpRepository, ProfileRepository])
   ],
   controllers: [AuthController, ProfileController],
-  providers: [AuthService, JwtStrategy, OtpService, AccountConfirmedGuard, NotificationService, ProfileService],
-  exports: [JwtStrategy, PassportModule, AccountConfirmedGuard]
+  providers: [
+    AuthService, JwtStrategy, OtpService,
+    AccountConfirmedGuard, NotificationService, ProfileService,
+    OnePipeService
+  ],
+  exports: [JwtStrategy, PassportModule, AccountConfirmedGuard, ProfileService]
 })
 export class AuthModule {}

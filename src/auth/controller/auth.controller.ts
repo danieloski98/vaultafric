@@ -31,8 +31,7 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('confirm/account')
-  confirmCode(@Body(ValidationPipe) confirmAccountDto: ConfirmAccountDto) {
-    console.log(confirmAccountDto instanceof ConfirmAccountDto)
+  confirmCode(@Body(new ValidationPipe({transform: true})) confirmAccountDto: ConfirmAccountDto) {
     return this.authService.confirmCode(confirmAccountDto);
   }
 

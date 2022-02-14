@@ -22,6 +22,9 @@ export class NewUserInvestmentDto {
   @IsInt()
   pin: number;
 
+  @IsInt()
+  interest: number;
+
   @IsIn([PaymentMethodsEnum.Card, PaymentMethodsEnum.SavingsAccount])
   paymentMethod: PaymentMethodsEnum;
 }

@@ -1,33 +1,27 @@
 import { SavingsOccurrence } from '../../../plan/base-plan';
 import { User } from '../../../auth/entity/user.entity';
-import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreateJointSavingsDto {
   @IsNotEmpty()
-  @IsString()
   groupName: string;
 
   @IsNotEmpty()
-  @IsString()
   savingsName: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  targetAmount: number;
+  @IsInt()
+  amount: number;
 
-  @IsNotEmpty()
   @IsDate()
   start: Date;
 
-  @IsNotEmpty()
   @IsDate()
   end: Date;
 
-  @IsNotEmpty()
   @IsEnum(SavingsOccurrence)
   pattern: SavingsOccurrence;
 
-  @IsNotEmpty()
-  @IsArray()
-  friends: User[];
+  avatar: string;
+  
+  participants: User[];
 }
