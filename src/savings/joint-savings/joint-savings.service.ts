@@ -53,37 +53,47 @@ export class JointSavingsService {
       createJointSavingsDto.avatar = avatar.toString('base64');
     }
 
-    const token = this.getToken(groupName);
+    const tokenArray = this.generateToken(groupName, createJointSavingsDto.participants.map(x => x.id));
 
     this.logger.log(`Save JointSavings account`)
     const savingsAccount = await this.jointSavingsRepository.save({ ...createJointSavingsDto, owner: user });
 
     this.logger.log(`Save participants record`)
-    await this.participantsRepo.saveParticipants(savingsAccount, token, createJointSavingsDto.participants);
+    await this.participantsRepo.saveParticipants(savingsAccount, tokenArray, createJointSavingsDto.participants);
 
     this.logger.log(`Notify participants via email`)
-    await this.notifyParticipants(createJointSavingsDto.participants, groupName, token);
+    await this.notifyParticipants(createJointSavingsDto.participants.map(x => x.email), groupName, tokenArray);
 
     return this.getGroup(user, groupName);
   }
 
-  private getToken = (groupName: string) => {
+  private generateToken = (groupName: string, ids: string[]) => {
     this.logger.log(`Build JointSavings token for - ${groupName}`);
+    const tokenArray = Array<string>();
 
-    const link = generate.random({ min: 50, max: 50});
-    return `${link};${md5(groupName)}`
+    const link = generate.random({ min: 70, max: 80});
+    ids.forEach(id => {
+      tokenArray.push(`${link};${md5(groupName)}@--${id}`.toUpperCase());
+    })
+    return tokenArray;
   };
 
-  async notifyParticipants(users: User[], groupName: string, token: string) {
+  async notifyParticipants(emails: string[], groupName: string, tokenArray: string[]) {
     this.logger.log(`Notify JointSavings Group participants`);
-    const emails = users.map(x => x.email);
-    let message = `Hi, <p>${process.env.INVITATION_EMAIL}</p>`;
-    message += `<p>Group Name: ${groupName}</p>`
-    message += `<p>Click the link to join JointSavings Group</p>`;
-    message += `<p><a href='https://api.vaultafrica.co/joint-savings/join/${token}'>Join Group</a></p>`
 
-    await this.notificationService.sendJointSavingsInvitation(message, emails);
+    for (let i = 0; i < tokenArray.length; i++) {
+      let message = this.getEmailMessage(groupName, tokenArray, i);
+      await this.notificationService.sendJointSavingsInvitation(message, emails[i]);
+    }
   }
+
+  private getEmailMessage = (groupName: string, tokenArray: string[], i: number) => {
+    let message = `Hi, <p>${process.env.INVITATION_EMAIL}</p>`;
+    message += `<p>Group Name: <b>${groupName}</b></p>`;
+    message += `<p>Click the link to join JointSavings Group</p>`;
+    message += `<p><a href='https://api.vaultafrica.co/joint-savings/join/${tokenArray[i]}'><b>Join Group</b></a></p>`;
+    return message;
+  };
 
   async withdraw(user: User, withdrawDto: WithdrawDto) {
     this.logger.log(`Withdraw ${JSON.stringify(withdrawDto)}`);
@@ -109,9 +119,9 @@ export class JointSavingsService {
     return { message: `Your withdrawal is being processed`};
   }
 
-  async joinGroupSavings(user: User, joinToken: string) {
-    this.logger.log(`Activate group savings for ${JSON.stringify(user)}`);
-    await this.participantsRepo.activateGroupSavings(user, joinToken)
+  async joinGroupSavings(joinToken: string) {
+    this.logger.log(`Activate group savings for ${joinToken}`);
+    await this.participantsRepo.activateGroupSavings(joinToken)
   }
 
   async getGroupDetail(user: User, groupId: string) {

@@ -44,18 +44,18 @@ export class NotificationService {
     await Promise.resolve();
   }
 
-  async sendJointSavingsInvitation(content: string, emails: Array<string>){
+  async sendJointSavingsInvitation(content: string, email: string){
     const html = `<p>${content}</p>`;
-    const text = content;
+    // const text = content;
 
     try{
-      this.logger.log(`Sending email...`);
+      this.logger.log(`Sending email to ${email}`);
 
         await transport.sendMail({
           from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
           subject: `JointSavings Group Invitation`,
-          text, html,
-          bcc: emails
+          html,
+          to: email
         });
 
         this.logger.log(`...email sent`);

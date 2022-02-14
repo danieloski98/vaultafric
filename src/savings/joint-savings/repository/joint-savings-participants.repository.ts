@@ -9,18 +9,14 @@ export class JointSavingsParticipantsRepository extends Repository<JointSavingsP
 
   private readonly logger = new Logger(JointSavingsParticipantsRepository.name, true);
 
-  async saveParticipants(jointSavings: JointSavingsEntity, token: string, participants: User[]) {
-    await participants.forEach(participant => {
-      this.logger.log(`Verify user exist...`);
-
-      this.save({
-        jointSavings, token,
-        user: participant
-      });
-    });
+  async saveParticipants(jointSavings: JointSavingsEntity, tokenArray: string[], participants: User[]) {
+    this.logger.log(`Save participants to database`);
+    for (let i = 0; i < tokenArray.length; i++) {
+      await this.save({ jointSavings, token: `${tokenArray[i]}`, user: participants[i] });
+    }
   }
 
-  async activateGroupSavings(user: User, token: string) {
+  async activateGroupSavings(token: string) {
     await this.createQueryBuilder()
       .update(JointSavingsParticipantsEntity)
       .set({ joinDate: new Date(), hasJoinedGroup: true })

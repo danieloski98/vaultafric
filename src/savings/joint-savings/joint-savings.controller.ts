@@ -60,7 +60,7 @@ export class JointSavingsController {
 
   @Get('join/:joinToken')
   async joinJointSavingsGroup(@GetUser() user: User, @Param('joinToken') joinToken: string) {
-    return this.jointSavingsService.joinGroupSavings(user, joinToken);
+    return this.jointSavingsService.joinGroupSavings(joinToken);
   }
 
   @Get('group/:groupId')
