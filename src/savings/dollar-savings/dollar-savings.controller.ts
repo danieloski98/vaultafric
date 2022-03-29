@@ -69,9 +69,9 @@ export class DollarSavingsController {
     return this.dollarService.transferDollar(transferDollarDto);
   }
 
-  @Get('find/vaulter/:usernameStub')
-  findVaulter(@Param('usernameStub') usernameStub: string) {
-    return this.dollarService.findVaulter(usernameStub);
+  @Get('find/:phone')
+  findVaulter(@Param('phone') phone: string) {
+    return this.dollarService.findVaulter(phone);
   }
 
 }

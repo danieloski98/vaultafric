@@ -223,4 +223,18 @@ export class FixedSavingsService {
   async updateAccountBalance(id: string, balance: number) {
     await this.fixedSavingsRepository.save({id, balance});
   }
+
+  async getTotalBalance(user: User) {
+    const fixedSavings = await this.fixedSavingsRepository.find({
+      where: {user},
+      select: ['balance']
+    });
+
+    let balance = 0;
+    if(fixedSavings.length > 0) {
+      fixedSavings.forEach(savings => balance += savings.balance);
+    }
+
+    return { balance };
+  }
 }

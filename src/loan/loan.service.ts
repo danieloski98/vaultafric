@@ -63,13 +63,13 @@ export class LoanService {
     });
 
     if(!loanAccount) {
-      throw new NotFoundException(`Loan record not found`);
+      return { balance: 0 };
     }
 
-    return {balance: loanAccount.balance};
+    return { balance: loanAccount.balance };
   }
 
-  getDateRange(duration: Duration): {start: Date, end: Date} {
+  private getDateRange(duration: Duration): {start: Date, end: Date} {
     this.logger.log(`Get date range for ${duration}`);
 
     const start = DateTime.now().toJSDate();

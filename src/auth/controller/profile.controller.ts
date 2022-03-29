@@ -66,6 +66,11 @@ export class ProfileController {
     return this.profileService.updateTransactionPin(user, transactionPinDto);
   }
 
+  @Get('all')
+  getAllUsers() {
+    return this.profileService.getAllUsers();
+  }
+
   @Get()
   getProfile(@GetUser() user: User): Promise<{}> {
     return this.profileService.getFullProfile(user);

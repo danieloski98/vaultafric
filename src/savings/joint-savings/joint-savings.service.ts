@@ -7,12 +7,14 @@ import { DuplicateJointSavingsException } from '../../exception/duplicate-joint-
 import { ProfileService } from '../../auth/service/profile.service';
 import { JointSavingsNotFoundException } from '../../exception/joint-savings-not-found-exception';
 import { NotificationService } from '../../notification/notification.service';
-import {config} from 'dotenv';
+import { config } from 'dotenv';
 import { JointSavingsParticipantsRepository } from './repository/joint-savings-participants.repository';
 import { WithdrawDto } from './dto/withdraw.dto';
 import { InsufficientBalanceException } from '../../exception/insufficient-balance.exception';
-import { md5 } from '../../../common/utils';
+import { md5 } from '../../common/utils';
 import * as generate from 'meaningful-string';
+import { JointSavingsNotStartedException } from '../../exception/joint-savings-not-started-exception';
+import { JointSavingCreated } from './joint-saving.created';
 
 config();
 
@@ -36,13 +38,13 @@ export class JointSavingsService {
     return await this.profileService.findConfirmedVaultersByPhone(phone);
   }
 
-  async createJointSavings(user: User, createJointSavingsDto: CreateJointSavingsDto,
-                           avatar?: Buffer) {
+  async createJointSavings(user: User, createJointSavingsDto: CreateJointSavingsDto, avatar?: Buffer) {
     this.logger.log(`Create and save joint savings account`);
 
-    const { savingsName, groupName } = createJointSavingsDto;
-    const savingsExist = await this.jointSavingsRepository.exist(groupName, savingsName, user);
+    const { savingsName, groupName, participants } = createJointSavingsDto;
+    const failed = await this.verifyParticipants(participants);
 
+    const savingsExist = await this.jointSavingsRepository.exist(groupName, savingsName, user);
     if(savingsExist) {
       this.logger.error(`Duplicate JointSavings found`);
       throw new DuplicateJointSavingsException();
@@ -64,7 +66,49 @@ export class JointSavingsService {
     this.logger.log(`Notify participants via email`)
     await this.notifyParticipants(createJointSavingsDto.participants.map(x => x.email), groupName, tokenArray);
 
-    return this.getGroup(user, groupName);
+    return await this.savingsCreatedResponse(`JointSavings started`, participants, failed, user, groupName);
+  }
+
+  private async verifyParticipants(participants: User[]) {
+    let tempParticipants = Array<User>();
+    const failed = Array<User>();
+
+    Object.assign(tempParticipants, participants);
+
+    for (const friend of tempParticipants) {
+      const profileExist = await this.profileService.exist(friend);
+      if (profileExist === false) {
+        const index = participants.indexOf(friend, 0);
+        participants.splice(index, 1);
+        failed.push(friend);
+      }
+    }
+
+    if (participants.length === 0) {
+      this.logger.error(`Invalid vault users`);
+      const response = await this.savingsCreatedResponse(`JointSavings cannot be started`, participants, failed);
+      throw new JointSavingsNotStartedException(response);
+    }
+    return failed;
+  }
+
+  private async savingsCreatedResponse(message: string, participants: User[], failed: User[], user?: User, groupName?: string) {
+    let group;
+    if(user) {
+      group = await this.getGroup(user, groupName)
+    }
+    const response: JointSavingCreated = {
+      message, group,
+      successfulInvitations: {
+        count: participants.length,
+        friends: participants
+      },
+      failedInvitations: {
+        count: failed.length,
+        friends: failed
+      },
+    };
+    return response;
   }
 
   private generateToken = (groupName: string, ids: string[]) => {
@@ -143,4 +187,19 @@ export class JointSavingsService {
       .andWhere('js.groupName = :groupName', {groupName})
       .getOne()
   }
+
+  async getTotalBalance(user: User) {
+    const jointSavings = await this.jointSavingsRepository.findOne({
+      where: {user},
+      select: ['balance']
+    });
+
+    let balance = 0;
+    if(jointSavings) {
+      balance = jointSavings.balance;
+    }
+
+    return { balance };
+  }
 }
+

@@ -15,20 +15,6 @@ export class SavingsService {
     private jointSavingsService: JointSavingsService
   ) {}
 
-  // async getAllSavingsBalance(user: User) {
-  //   const fixedSavings = await this.fixedSavingsRepository.findOne({
-  //     where: {user},
-  //     select: ['balance']
-  //   });
-  //
-  //   const fixedDeposit = await this.fixedDepositRepository.findOne({
-  //     where: {user},
-  //     select: ['balance']
-  //   });
-  //
-  //   return fixedDeposit.balance + fixedSavings.balance;
-  // }
-
   async getLatestTransaction() {
     this.logger.log(`Get the latest transactions of all savings plan`)
   }
@@ -73,6 +59,18 @@ export class SavingsService {
     account.balance -= amount;
 
     await this.updateSavingsAccount(user, account);
+  }
+
+  async getFixedDepositBalance(user: User) {
+    return await this.fixedDepositService.getTotalBalance(user);
+  }
+
+  async getFixedSavingsBalance(user: User) {
+    return await this.fixedSavingsService.getTotalBalance(user);
+  }
+
+  async getJointSavingsBalance(user: User) {
+    return await this.jointSavingsService.getTotalBalance(user);
   }
 }
 

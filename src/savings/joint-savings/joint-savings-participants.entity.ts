@@ -2,14 +2,13 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  Entity, ManyToMany,
+  Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
 import { JointSavingsEntity } from './joint-savings.entity';
-import { JoinTable } from 'typeorm/browser';
 
 @Entity({name: 'JointSavingsParticipants'})
 export class JointSavingsParticipantsEntity extends BaseEntity {

@@ -31,7 +31,7 @@ export class FixedDepositService {
       fixedDepositDto.avatar = imageBuffer.toString('base64');
     }
     
-    const { name, amount, start, end, avatar } = fixedDepositDto;
+    const { name, amount, start, end, avatar, duration } = fixedDepositDto;
 
     if(start > end) {
       this.logger.error(`Invalid date selection: start: ${start}, end: ${end}`)
@@ -45,7 +45,7 @@ export class FixedDepositService {
     if(fixedRecords.length > 0) throw new DuplicateFixedDepositException();
 
     try {
-      const deposit = await this.repository.create({ name, amount, start, end, avatar, user });
+      const deposit = await this.repository.create({ name, amount, start, end, duration, avatar, user });
       await this.repository.save(deposit);
     }catch (e) {
       this.logger.error(`Error creating fixed deposit plan. ${e.message}`);
@@ -120,6 +120,20 @@ export class FixedDepositService {
       where: {id, user},
       select: ['id', 'balance']
     });
+  }
+
+  async getTotalBalance(user: User) {
+    const fixedDeposits = await this.repository.find({
+      where: { user },
+      select: ['balance']
+    });
+
+    let balance = 0;
+    if(fixedDeposits.length > 0) {
+      fixedDeposits.forEach(dep => balance += dep.balance);
+    }
+
+    return { balance };
   }
 
   async updateAccountBalance(id: string, balance: number) {

@@ -45,10 +45,6 @@ export class ProfileService {
     return profile;
   }
 
-  findConfirmedProfiles(ids: string) {
-
-  }
-
   async updateAccountName(user: User, updateAccountNameDto: UpdateAccountNameDto) {
     this.logger.log('Update user account name started');
     let profile = await this.getProfile(user);
@@ -127,7 +123,7 @@ export class ProfileService {
     await this.repository.save(profile)
   }
 
-  async getPin(user: User): Promise<{transactionPin: number}> {
+  async getPin(user: User): Promise<{ transactionPin: number }> {
     this.logger.log(`Get pin for user ${user.id}`);
     const profile = await this.repository.findOne({
       where: {user},
@@ -176,8 +172,24 @@ export class ProfileService {
   }
 
   async exist(user: User) {
-    return (await this.userRepository.count({
-      where: {id: user.id, email: user.email, isAccountConfirmed: true}
-    })) > 0;
+    this.logger.log(`Check if user exist ${user}`);
+
+    try{
+      return (await this.userRepository.count({
+        where: { id: user.id, email: user.email, isAccountConfirmed: true }
+      })) > 0;
+    } catch(e) {
+      this.logger.error(`Cannot verify if user exist ${e}`);
+      return false;
+    }
+  }
+
+  async getAllUsers() {
+    this.logger.log(`Get all vaultafrica users`)
+
+    return await this.userRepository.find({
+      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname']
+    });
+
   }
 }

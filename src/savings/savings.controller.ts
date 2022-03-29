@@ -18,4 +18,18 @@ export class SavingsController {
     return this.savingsService.getLatestTransaction();
   }
 
+  @Get('balance/fixed-deposit')
+  getFixedDepositBalance(@GetUser() user: User) {
+    return this.savingsService.getFixedDepositBalance(user);
+  }
+
+  @Get('balance/fixed-savings')
+  getFixedSavingsBalance(@GetUser() user: User) {
+      return this.savingsService.getFixedSavingsBalance(user);
+  }
+
+  @Get('balance/joint-savings')
+  getJointSavingsBalance(@GetUser() user: User) {
+    return this.savingsService.getJointSavingsBalance(user);
+  }
 }

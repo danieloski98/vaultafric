@@ -1,4 +1,5 @@
-import { IsDate, IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Duration } from '../../../plan/base-plan';
 
 export class FixedDepositDto {
   @IsNotEmpty()
@@ -6,6 +7,9 @@ export class FixedDepositDto {
 
   @IsNumber()
   amount: number;
+
+  @IsEnum(Duration)
+  duration: Duration;
 
   @IsDate()
   start: Date;

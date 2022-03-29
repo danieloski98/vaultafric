@@ -1,18 +1,17 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger} from '@nestjs/common';
 import { TransferDollarDto } from './dto/transfer-dollar.dto';
 import { User } from '../../auth/entity/user.entity';
 import { UserRepository } from '../../auth/repository/user.repository';
-import { Like } from 'typeorm';
 import { DollarOpsDto } from './dto/dollar-ops.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DollarSavingsRepository } from './dollar-savings.repository';
 import { ProfileRepository } from '../../auth/repository/profile.repository';
 import { DollarToNairaDto } from './dto/dollar-to-naira.dto';
 import { InvalidDepositAmountException } from '../../exception/invalid-deposit-amount.exception';
-import { TransactionPinNotFoundException } from '../../exception/transaction-pin-not-found.exception';
 import { TransactionPinMismatchException } from '../../exception/transaction-pin-mismatch.exception';
 import { InvalidConversionAmountException } from '../../exception/invalid-conversion-amount.exception';
 import { InsufficientBalanceException } from '../../exception/insufficient-balance.exception';
+import { ProfileService } from '../../auth/service/profile.service';
 
 @Injectable()
 export class DollarSavingsService {
@@ -26,7 +25,9 @@ export class DollarSavingsService {
     private dollarRepository: DollarSavingsRepository,
 
     @InjectRepository(ProfileRepository)
-    private profileRepository: ProfileRepository
+    private profileRepository: ProfileRepository,
+
+    private profileService: ProfileService
     ) {}
 
   async buyDollar(user:User, dollarOpsDto: DollarOpsDto) {
@@ -60,17 +61,9 @@ export class DollarSavingsService {
     }
 
     this.logger.log(`Get transaction pin`)
-    const profile = await this.profileRepository.findOne({
-      where: {user},
-      select: ['pin']
-    });
+    const { transactionPin } = await this.profileService.getPin(user);
 
-    if(profile.pin === 0) {
-      this.logger.error(`Transaction pin has not been set`);
-      throw new TransactionPinNotFoundException();
-    }
-
-    if(profile.pin !== pin){
+    if(transactionPin !== pin){
       this.logger.error(`Invalid transaction pin`);
       throw new TransactionPinMismatchException();
     }
@@ -101,15 +94,9 @@ export class DollarSavingsService {
     return Promise.resolve(undefined);
   }
 
-  async findVaulter(usernameStub: string) {
-    const user = await this.userRepository.findOne({
-      where: { username: Like(`${usernameStub}`) },
-      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname']
-    });
-
-    this.logger.log(`Find vaulter with username starting with '${usernameStub}'`);
-
-    return user;
+  async findVaulter(phone: string) {
+    this.logger.log(`find participants with phone number`);
+    return await this.profileService.findConfirmedVaultersByPhone(phone);
   }
 
   async getBalance(user: User) {
@@ -122,7 +109,7 @@ export class DollarSavingsService {
 
     if(!savings) {
       this.logger.error(`Dollar savings account not found`);
-      throw new NotFoundException(`Dollar savings not found`);
+      return { balance: 0 };
     }
 
     this.logger.log(`Dollar balance sent.`)

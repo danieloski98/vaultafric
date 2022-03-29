@@ -1,6 +1,6 @@
 import { AuthConfig, CustomerConfig, Data, Details, Meta, RequestType, TransactionConfig } from './props';
 import { config } from 'dotenv';
-import { md5 } from '../../common/utils';
+import { md5 } from '../common/utils';
 
 config();
 
