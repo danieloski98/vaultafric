@@ -11,10 +11,10 @@ import { config } from 'dotenv';
 import { JointSavingsParticipantsRepository } from './repository/joint-savings-participants.repository';
 import { WithdrawDto } from './dto/withdraw.dto';
 import { InsufficientBalanceException } from '../../exception/insufficient-balance.exception';
-import { md5 } from '../../common/utils';
-import * as generate from 'meaningful-string';
 import { JointSavingsNotStartedException } from '../../exception/joint-savings-not-started-exception';
 import { JointSavingCreated } from './joint-saving.created';
+import { ActivationLinkService } from './activation-link.service';
+import { JointSavings } from './entity/joint-savings.entity';
 
 config();
 
@@ -30,7 +30,8 @@ export class JointSavingsService {
     private participantsRepo: JointSavingsParticipantsRepository,
 
     private profileService: ProfileService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private joinLinkService: ActivationLinkService
   ) {}
 
   async findParticipants(phone: string) {
@@ -38,14 +39,14 @@ export class JointSavingsService {
     return await this.profileService.findConfirmedVaultersByPhone(phone);
   }
 
-  async createJointSavings(user: User, createJointSavingsDto: CreateJointSavingsDto, avatar?: Buffer) {
+  async createJointSavings(owner: User, createJointSavingsDto: CreateJointSavingsDto, avatar?: Buffer) {
     this.logger.log(`Create and save joint savings account`);
 
     const { savingsName, groupName, participants } = createJointSavingsDto;
     const failed = await this.verifyParticipants(participants);
 
-    const savingsExist = await this.jointSavingsRepository.exist(groupName, savingsName, user);
-    if(savingsExist) {
+    const groupExist = await this.jointSavingsRepository.exist(groupName, savingsName, owner);
+    if(groupExist) {
       this.logger.error(`Duplicate JointSavings found`);
       throw new DuplicateJointSavingsException();
     }
@@ -55,89 +56,16 @@ export class JointSavingsService {
       createJointSavingsDto.avatar = avatar.toString('base64');
     }
 
-    const tokenArray = this.generateToken(groupName, createJointSavingsDto.participants.map(x => x.id));
-
     this.logger.log(`Save JointSavings account`)
-    const savingsAccount = await this.jointSavingsRepository.save({ ...createJointSavingsDto, owner: user });
+    const savingsAccount = await this.jointSavingsRepository.save({ ...createJointSavingsDto, owner });
 
     this.logger.log(`Save participants record`)
-    await this.participantsRepo.saveParticipants(savingsAccount, tokenArray, createJointSavingsDto.participants);
+    await this.participantsRepo.saveParticipants(savingsAccount, participants);
 
-    this.logger.log(`Notify participants via email`)
-    await this.notifyParticipants(createJointSavingsDto.participants.map(x => x.email), groupName, tokenArray);
+    await this.notifyParticipants(participants, savingsAccount);
 
-    return await this.savingsCreatedResponse(`JointSavings started`, participants, failed, user, groupName);
+    return await this.savingsCreatedResponse(`JointSavings started`, participants, failed, owner, groupName);
   }
-
-  private async verifyParticipants(participants: User[]) {
-    let tempParticipants = Array<User>();
-    const failed = Array<User>();
-
-    Object.assign(tempParticipants, participants);
-
-    for (const friend of tempParticipants) {
-      const profileExist = await this.profileService.exist(friend);
-      if (profileExist === false) {
-        const index = participants.indexOf(friend, 0);
-        participants.splice(index, 1);
-        failed.push(friend);
-      }
-    }
-
-    if (participants.length === 0) {
-      this.logger.error(`Invalid vault users`);
-      const response = await this.savingsCreatedResponse(`JointSavings cannot be started`, participants, failed);
-      throw new JointSavingsNotStartedException(response);
-    }
-    return failed;
-  }
-
-  private async savingsCreatedResponse(message: string, participants: User[], failed: User[], user?: User, groupName?: string) {
-    let group;
-    if(user) {
-      group = await this.getGroup(user, groupName)
-    }
-    const response: JointSavingCreated = {
-      message, group,
-      successfulInvitations: {
-        count: participants.length,
-        friends: participants
-      },
-      failedInvitations: {
-        count: failed.length,
-        friends: failed
-      },
-    };
-    return response;
-  }
-
-  private generateToken = (groupName: string, ids: string[]) => {
-    this.logger.log(`Build JointSavings token for - ${groupName}`);
-    const tokenArray = Array<string>();
-
-    const link = generate.random({ min: 70, max: 80});
-    ids.forEach(id => {
-      tokenArray.push(`${link};${md5(groupName)}@--${id}`.toUpperCase());
-    })
-    return tokenArray;
-  };
-
-  async notifyParticipants(emails: string[], groupName: string, tokenArray: string[]) {
-    this.logger.log(`Notify JointSavings Group participants`);
-
-    for (let i = 0; i < tokenArray.length; i++) {
-      let message = this.getEmailMessage(groupName, tokenArray, i);
-      await this.notificationService.sendJointSavingsInvitation(message, emails[i]);
-    }
-  }
-
-  private getEmailMessage = (groupName: string, tokenArray: string[], i: number) => {
-    let message = `Hi, <p>${process.env.INVITATION_EMAIL}</p>`;
-    message += `<p>Group Name: <b>${groupName}</b></p>`;
-    message += `<p>Click the link to join JointSavings Group</p>`;
-    message += `<p><a href='https://api.vaultafrica.co/joint-savings/join/${tokenArray[i]}'><b>Join Group</b></a></p>`;
-    return message;
-  };
 
   async withdraw(user: User, withdrawDto: WithdrawDto) {
     this.logger.log(`Withdraw ${JSON.stringify(withdrawDto)}`);
@@ -163,9 +91,13 @@ export class JointSavingsService {
     return { message: `Your withdrawal is being processed`};
   }
 
-  async joinGroupSavings(joinToken: string) {
-    this.logger.log(`Activate group savings for ${joinToken}`);
-    await this.participantsRepo.activateGroupSavings(joinToken)
+  async joinGroupSavings(user: User, groupId: string, activationLink: string) {
+    this.logger.log(`Activate group savings for '${activationLink}'`);
+
+    await this.joinLinkService.validateLink(user, activationLink);
+    await this.participantsRepo.activateGroupSavings(user);
+
+    return { message: `Joint Savings now active` }
   }
 
   async getGroupDetail(user: User, groupId: string) {
@@ -180,17 +112,9 @@ export class JointSavingsService {
     return jointSavings;
   }
 
-  private async getGroup(user: User, groupName: string) {
-    return await this.jointSavingsRepository
-      .createQueryBuilder('js')
-      .where('js.owner.id = :userId', {userId: user.id})
-      .andWhere('js.groupName = :groupName', {groupName})
-      .getOne()
-  }
-
   async getTotalBalance(user: User) {
     const jointSavings = await this.jointSavingsRepository.findOne({
-      where: {user},
+      where: {owner: user},
       select: ['balance']
     });
 
@@ -201,5 +125,85 @@ export class JointSavingsService {
 
     return { balance };
   }
+
+  private notifyParticipants = async (participants: User[], jointSavings: JointSavings) => {
+    this.logger.log(`Notify participants via email`);
+
+    const { groupName, id } = jointSavings;
+    const emails = participants.map(user => user.email);
+    const activationLinks = await this.joinLinkService.getActivationLinks(participants, jointSavings);
+
+    for (let i = 0; i < activationLinks.length; i++) {
+      let message = this.createEmailMessage({ name:groupName, id }, activationLinks[i]);
+      await this.notificationService.sendJointSavingInvite(message, emails[i]);
+    }
+    this.logger.log(`Invitation email sent`);
+  }
+
+  private verifyParticipants = async (participants: User[]) => {
+    let tempParticipants = Array<User>();
+    const failed = Array<User>();
+
+    Object.assign(tempParticipants, participants);
+
+    for (const friend of tempParticipants) {
+      const profileExist = await this.profileService.exist(friend);
+      if (profileExist === false) {
+        const index = participants.indexOf(friend, 0);
+        participants.splice(index, 1);
+        failed.push(friend);
+      }
+    }
+
+    if (participants.length === 0) {
+      this.logger.error(`Invalid vault users`);
+      const response = await this.savingsCreatedResponse(`JointSavings cannot be started`, participants, failed);
+      throw new JointSavingsNotStartedException(response);
+    }
+    return failed;
+  }
+
+  private savingsCreatedResponse = async (message: string, participants: User[],
+                                          failed: User[], user?: User, groupName?: string) => {
+    let group;
+    if(user) {
+      group = await this.getGroup(user, groupName)
+    }
+    const response: JointSavingCreated = {
+      message, group,
+      successfulInvitations: {
+        count: participants.length,
+        friends: participants
+      },
+      failedInvitations: {
+        count: failed.length,
+        friends: failed
+      },
+    };
+    return response;
+  }
+
+  private createEmailMessage = (group: Group, activationLink: string) => {
+    let message = `Hi, <p>${process.env.INVITATION_EMAIL}</p>`;
+    message += this.asParagraph(`Group Name: <b>${group.name}</b>`)
+    message += this.asParagraph(`Click the link to join JointSavings Group`);
+    message += this.asParagraph(`<a href='https://api.vaultafrica.co/joint-savings/join/${group.id}/${activationLink}'><b>Join Group</b></a>`);
+
+    return message;
+  }
+
+  private asParagraph = (content: string) => {
+    return `<p>${content}</p>`
+  }
+
+  private async getGroup(user: User, groupName: string) {
+    return await this.jointSavingsRepository
+      .createQueryBuilder('js')
+      .where('js.owner.id = :userId', {userId: user.id})
+      .andWhere('js.groupName = :groupName', {groupName})
+      .getOne()
+  }
+
 }
+interface Group { name: string, id: string }
 

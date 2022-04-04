@@ -1,5 +1,5 @@
 import { BaseEntity, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { JointSavingsEntity } from './joint-savings.entity';
+import { JointSavings } from './joint-savings.entity';
 
 @Entity({ name: 'JointSavingsTransaction' })
 export class JointSavingsTransaction extends BaseEntity {
@@ -7,8 +7,8 @@ export class JointSavingsTransaction extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => JointSavingsEntity, jointSavings => jointSavings.id, { nullable: false })
+  @OneToOne(() => JointSavings, jointSavings => jointSavings.id, { nullable: false })
   @JoinColumn()
-  account: JointSavingsEntity;
+  account: JointSavings;
 
 }

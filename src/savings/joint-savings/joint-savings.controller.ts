@@ -58,9 +58,10 @@ export class JointSavingsController {
     return this.jointSavingsService.withdraw(user, withdraw);
   }
 
-  @Get('join/:joinToken')
-  async joinJointSavingsGroup(@GetUser() user: User, @Param('joinToken') joinToken: string) {
-    return this.jointSavingsService.joinGroupSavings(joinToken);
+  @Get('join/:groupId/:joinToken')
+  async joinJointSavingsGroup(@GetUser() user: User, @Param('groupId') groupId: string,
+                              @Param('joinToken') joinToken: string) {
+    return this.jointSavingsService.joinGroupSavings(user, groupId, joinToken);
   }
 
   @Get('group/:groupId')

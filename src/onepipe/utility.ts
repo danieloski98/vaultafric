@@ -20,7 +20,7 @@ export const getTransactionConfig = (transactionRef: string, customer: CustomerC
  */
 export const getAuth = (type: string, secure: string): AuthConfig => {
   return {
-    auth_provider: 'VBankVirtual',
+    auth_provider: process.env.AUTH_PROVIDER,
     route_mode: null,
     secure,
     type

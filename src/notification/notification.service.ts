@@ -44,9 +44,8 @@ export class NotificationService {
     await Promise.resolve();
   }
 
-  async sendJointSavingsInvitation(content: string, email: string){
+  async sendJointSavingInvite(content: string, email: string){
     const html = `<p>${content}</p>`;
-    // const text = content;
 
     try{
       this.logger.log(`Sending email to ${email}`);

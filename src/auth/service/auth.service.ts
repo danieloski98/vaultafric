@@ -13,6 +13,7 @@ import { SendOtpDto } from '../dto/send-otp.dto';
 import { ProfileService } from './profile.service';
 import { DeleteUserAccountDto } from '../dto/delete-user-account.dto';
 import { OnePipeService } from '../../onepipe/one-pipe.service';
+import { isExpired } from '../../common/utils';
 
 @Injectable()
 export class AuthService {
@@ -82,7 +83,7 @@ export class AuthService {
             throw new BadRequestException(`OTP not found`);
         }
 
-        if(this.otpService.isExpired(otpModel)) {
+        if(isExpired(otpModel.expiresIn)) {
             this.logger.error(`Expired OTP ${otpModel}`);
             throw new BadRequestException(`OTP has expired`);
         }

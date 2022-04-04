@@ -7,26 +7,20 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entity/user.entity';
-import { JointSavingsEntity } from './joint-savings.entity';
+import { User } from '../../../auth/entity/user.entity';
+import { JointSavings } from './joint-savings.entity';
 
 @Entity({name: 'JointSavingsParticipants'})
-export class JointSavingsParticipantsEntity extends BaseEntity {
+export class JointSavingsParticipants extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => JointSavingsEntity, js => js.id, { nullable: false } )
-  jointSavings: JointSavingsEntity;
+  @ManyToOne(() => JointSavings, js => js.id, { nullable: false } )
+  jointSavings: JointSavings;
 
   @Column({nullable: false, default: false})
   hasJoinedGroup: boolean;
-
-  @Column({nullable: false, select: false, unique: true})
-  token: string;
-
-  @Column({nullable: true})
-  joinDate: Date;
 
   @CreateDateColumn({select: false})
   createdOn: Date

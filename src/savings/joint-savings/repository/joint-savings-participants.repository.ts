@@ -1,27 +1,35 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { JointSavingsParticipantsEntity } from '../joint-savings-participants.entity';
-import { JointSavingsEntity } from '../joint-savings.entity';
+import { JointSavingsParticipants } from '../entity/joint-savings-participants.entity';
+import { JointSavings } from '../entity/joint-savings.entity';
 import { User } from '../../../auth/entity/user.entity';
 import { Logger } from '@nestjs/common';
 
-@EntityRepository(JointSavingsParticipantsEntity)
-export class JointSavingsParticipantsRepository extends Repository<JointSavingsParticipantsEntity>{
+@EntityRepository(JointSavingsParticipants)
+export class JointSavingsParticipantsRepository extends Repository<JointSavingsParticipants>{
 
   private readonly logger = new Logger(JointSavingsParticipantsRepository.name, true);
 
-  async saveParticipants(jointSavings: JointSavingsEntity, tokenArray: string[], participants: User[]) {
+  async saveParticipants(jointSavings: JointSavings, participants: User[]) {
     this.logger.log(`Save participants to database`);
-    for (let i = 0; i < tokenArray.length; i++) {
-      await this.save({ jointSavings, token: `${tokenArray[i]}`, user: participants[i] });
+
+    for (let i = 0; i < participants.length; i++) {
+      await this.save({ jointSavings, user: participants[i] });
     }
   }
 
-  async activateGroupSavings(token: string) {
-    await this.createQueryBuilder()
-      .update(JointSavingsParticipantsEntity)
-      .set({ joinDate: new Date(), hasJoinedGroup: true })
-      .where("token = :token", {token})
-      .execute();
+  async activateGroupSavings(user: User) {
+    this.logger.log(`Activate group savings for '${user.id}'`);
+
+    try{
+      return await this.createQueryBuilder()
+        .update(JointSavingsParticipants)
+        .set({ hasJoinedGroup: true })
+        .where("user = :user", { user: `f9cf2de0-7f91-4403-8f5a-9f179bf93744` })
+        .execute();
+    }catch(error) {
+      this.logger.error('Could not perform update', error);
+    }
+
   }
 
 }

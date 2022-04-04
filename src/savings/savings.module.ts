@@ -19,6 +19,8 @@ import { SavingsController } from './savings.controller';
 import { SavingsService } from './savings.service';
 import { DollarSavingsRepository } from './dollar-savings/dollar-savings.repository';
 import { JointSavingsParticipantsRepository } from './joint-savings/repository/joint-savings-participants.repository';
+import { ActivationLinkService } from './joint-savings/activation-link.service';
+import { ActivationLinkRepository } from './joint-savings/repository/activation-link.repository';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { JointSavingsParticipantsRepository } from './joint-savings/repository/j
       FixedSavingsRepository, FixedDepositRepository,
       JointSavingsRepository, UserRepository,
       ProfileRepository, DollarSavingsRepository,
-      JointSavingsParticipantsRepository
+      JointSavingsParticipantsRepository, ActivationLinkRepository
     ]),
     AuthModule
   ],
@@ -37,7 +39,7 @@ import { JointSavingsParticipantsRepository } from './joint-savings/repository/j
   providers: [
     FixedSavingsService, FixedDepositService,
     JointSavingsService, NotificationService,
-    DollarSavingsService, SavingsService
+    DollarSavingsService, SavingsService, ActivationLinkService
   ],
   exports: [
     FixedSavingsService, FixedDepositService, JointSavingsService

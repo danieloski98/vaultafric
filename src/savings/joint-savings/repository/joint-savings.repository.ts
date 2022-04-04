@@ -1,11 +1,11 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { JointSavingsEntity } from '../joint-savings.entity';
+import { JointSavings } from '../entity/joint-savings.entity';
 import { CreateJointSavingsDto } from '../dto/create-joint-savings.dto';
 import { User } from '../../../auth/entity/user.entity';
 import { Logger } from '@nestjs/common';
 
-@EntityRepository(JointSavingsEntity)
-export class JointSavingsRepository extends Repository<JointSavingsEntity> {
+@EntityRepository(JointSavings)
+export class JointSavingsRepository extends Repository<JointSavings> {
   private readonly logger = new Logger(JointSavingsRepository.name, true);
 
   async saveJointSavingsAccount(createJointSavingsDto: CreateJointSavingsDto) {

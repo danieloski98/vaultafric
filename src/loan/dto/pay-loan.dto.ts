@@ -1,11 +1,11 @@
-import { IsNumber } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class PayLoanDto {
 
-  @IsNumber()
+  @IsInt()
   amount: number;
 
-  @IsNumber()
+  @IsInt()
   pin: number;
 
   card: string;

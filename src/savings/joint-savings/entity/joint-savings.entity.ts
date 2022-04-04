@@ -6,13 +6,13 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { User } from '../../auth/entity/user.entity';
-import { SavingsOccurrence } from '../../plan/base-plan';
-import { JointSavingsParticipantsEntity } from './joint-savings-participants.entity';
+import { User } from '../../../auth/entity/user.entity';
+import { SavingsOccurrence } from '../../../plan/base-plan';
+import { JointSavingsParticipants } from './joint-savings-participants.entity';
 
 @Entity({name: 'JointSavings'})
 @Unique(['groupName', 'savingsName', 'owner'])
-export class JointSavingsEntity extends BaseEntity {
+export class JointSavings extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -43,12 +43,8 @@ export class JointSavingsEntity extends BaseEntity {
   @Column({nullable: false, default: true})
   isActive: boolean;
 
-  @OneToMany(() => JointSavingsParticipantsEntity, jsp => jsp.jointSavings)
-  participants: JointSavingsParticipantsEntity[];
-
-  // @ManyToMany(() => User, { onDelete: 'CASCADE' })
-  // @JoinTable({name: 'JointSavingsParticipants'})
-  // participants: User[];
+  @OneToMany(() => JointSavingsParticipants, jsp => jsp.jointSavings)
+  participants: JointSavingsParticipants[];
 
   @Column({ nullable: true })
   avatar: string;
