@@ -1,7 +1,10 @@
-import { IsNumber } from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class DollarOpsDto {
 
-  @IsNumber()
+  @IsInt()
   amount: number;
+
+  @IsNotEmpty()
+  cardId: string;
 }

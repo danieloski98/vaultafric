@@ -31,13 +31,14 @@ export class DollarSavingsService {
     ) {}
 
   async buyDollar(user:User, dollarOpsDto: DollarOpsDto) {
-    const {amount} = dollarOpsDto;
+    const {amount, cardId } = dollarOpsDto;
     this.logger.log(`Buy dollar called - N${amount}`);
 
     if(amount == 0) {
       throw new InvalidDepositAmountException();
     }
 
+    // TODO: funds to be withdrawn from users account using card id.
     //TODO: convert using 3rd party
 
     let account = await this.dollarRepository.findOne({where: {user}});
