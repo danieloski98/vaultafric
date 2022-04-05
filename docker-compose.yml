@@ -33,6 +33,7 @@ services:
       INVITATION_EMAIL: ${INVITATION_EMAIL}
       URL: ${URL}
       TRANSACTION_REF: ${TRANSACTION_REF}
+      AUTH_PROVIDER: ${AUTH_PROVIDER}
     depends_on:
       - db
 
