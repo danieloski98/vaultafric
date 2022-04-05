@@ -8,9 +8,14 @@ import {
   RequestType,
   TransactionConfig,
 } from './props';
+import {
+  apiKey,
+  authProvider,
+  baseUrl,
+  secret,
+  transactionRef,
+} from './config';
 import { md5 } from '../common/utils';
-import { apiKey, authProvider, baseUrl, secret } from './config';
-import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 
 export const buildUrl = (...paths: string[]): string => {
   return `${baseUrl}/${paths.join('/')}`;
@@ -25,7 +30,7 @@ export const getTransactionConfig = (
 ): TransactionConfig => {
   return {
     mock_mode: mode,
-    transaction_ref: randomStringGenerator(),
+    transaction_ref: transactionRef,
     transaction_desc: desc,
     amount: 0,
     customer,
