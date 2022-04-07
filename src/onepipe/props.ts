@@ -59,23 +59,44 @@ export enum AuthType {
   BankAccount = 'bank.account',
   Card = 'card',
   Wallet = 'wallet',
+  Custom = 'custom',
+  Voucher = 'voucher',
+  airtime = 'airtime',
+  bankTransfer = 'bank.transfer',
 }
 
 export enum ResponseStatus {
   Successful = 'Successful',
   WaitingForOTP = 'WaitingForOTP',
   PendingValidation = 'PendingValidation',
+  Failed = 'Failed',
 }
 
-export interface AccountOpeningResponse {
+export interface OnePipeResponse<T> {
   status: ResponseStatus;
   message: string;
-  data: any;
-  client_info: any;
+  data?: T;
 }
 
-export interface OTPValidationResponse {
-  status: ResponseStatus;
-  message: string;
-  data: any;
+export interface AccountOpeningData {
+  providerResponseCode: string;
+  provider: string;
+  reference: string;
+  accountNumber: string;
+  accountReference: string;
+  accountName: string;
+  contractCode: string;
+  currencyCode: string;
+  bankName: string;
+  bankCode: string;
+  status: string;
+  createdOn: string;
+  accountType: string;
+}
+
+export interface OTPValidationData {
+  providerResponseCode: string;
+  provider: string;
+  chargeToken: string;
+  paymentOptions: [];
 }

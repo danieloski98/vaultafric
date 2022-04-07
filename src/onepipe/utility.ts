@@ -8,17 +8,11 @@ import {
   RequestType,
   TransactionConfig,
 } from './props';
-import {
-  apiKey,
-  authProvider,
-  baseUrl,
-  secret,
-  transactionRef,
-} from './config';
 import { md5 } from '../common/utils';
+import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 
 export const buildUrl = (...paths: string[]): string => {
-  return `${baseUrl}/${paths.join('/')}`;
+  return `${process.env.URL}/${paths.join('/')}`;
 };
 
 export const getTransactionConfig = (
@@ -30,7 +24,7 @@ export const getTransactionConfig = (
 ): TransactionConfig => {
   return {
     mock_mode: mode,
-    transaction_ref: transactionRef,
+    transaction_ref: randomStringGenerator(),
     transaction_desc: desc,
     amount: 0,
     customer,
@@ -46,7 +40,7 @@ export const getTransactionConfig = (
  */
 export const getAuth = (type: AuthType, secure: string): AuthConfig => {
   return {
-    auth_provider: authProvider,
+    auth_provider: process.env.AUTH_PROVIDER,
     route_mode: null,
     secure,
     type,
@@ -79,7 +73,7 @@ export const headers = (
 ): { Signature: string; Authorization: string; 'Content-Type': string } => {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${apiKey}`,
-    Signature: md5(`${requestRef};${secret}`),
+    Authorization: `Bearer ${process.env.API_KEY}`,
+    Signature: md5(`${requestRef};${process.env.SECRET}`),
   };
 };
