@@ -40,7 +40,7 @@ export class OnePipeService {
       const secure = getSecure(process.env.SECRET, `${bvn}`);
       const auth = getAuth(AuthType.BankAccount, secure);
       const transactionConfig = getTransactionConfig(
-        'inspect',
+        process.env.NODE_ENV === 'production' ? 'live' : 'inspect',
         {},
         'account opening',
         details,
@@ -110,7 +110,7 @@ export class OnePipeService {
       const secure = getSecure(process.env.SECRET, `${otp}`);
       const auth = getAuth(authType, secure);
       const transactionConfig = getTransactionConfig(
-        'inspect',
+        process.env.NODE_ENV === 'production' ? 'live' : 'inspect',
         {},
         'validate otp',
       );
