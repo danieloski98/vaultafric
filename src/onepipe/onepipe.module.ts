@@ -5,6 +5,6 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [HttpModule],
   providers: [OnePipeService],
-  exports: [OnePipeService]
+  exports: [OnePipeService],
 })
 export class OnepipeModule {}

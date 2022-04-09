@@ -26,7 +26,7 @@ import { OnepipeModule } from './onepipe/onepipe.module';
     InsuranceModule,
     NotificationModule,
     CardModule,
-    // OnepipeModule
+    OnepipeModule
   ],
 })
 export class AppModule {}

@@ -1,11 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { config } from 'dotenv';
-import { CustomerConfig, Details, RequestType } from './props';
 import { HttpService } from '@nestjs/axios';
-import { getAuth, getOnePipeTransactionData, getTransactionConfig, headers } from './utility';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
-import axios from 'axios'
-import { map } from 'rxjs/operators';
+import { getSecure } from 'src/common/utils';
+import {
+  AuthType,
+  CustomerConfig,
+  Details,
+  RequestType,
+  OTPValidationData,
+  AccountOpeningData,
+  OnePipeResponse,
+  ResponseStatus,
+} from './props';
+import {
+  getAuth,
+  getOnePipeTransactionData,
+  getTransactionConfig,
+  buildUrl,
+  headers,
+} from './utility';
 
 config();
 
@@ -15,35 +29,134 @@ export class OnePipeService {
 
   constructor(private httpService: HttpService) {}
 
-  async openAccount(options: CustomerConfig, details: Details){
-    const url = `${process.env.URL}/transact`;
-    const requestRef = randomStringGenerator();
-    const transactionRef = randomStringGenerator();
+  async openAccount(
+    options: CustomerConfig,
+    details: Details,
+    bvn: string,
+  ): Promise<OnePipeResponse<AccountOpeningData>> {
+    let result: OnePipeResponse<AccountOpeningData>;
+    try {
+      const url = buildUrl('transact');
+      const secure = getSecure(process.env.SECRET, `${bvn}`);
+      const auth = getAuth(AuthType.BankAccount, secure);
+      const transactionConfig = getTransactionConfig(
+        process.env.NODE_ENV === 'production' ? 'live' : 'inspect',
+        {},
+        'account opening',
+        details,
+        options,
+      );
+      const requestRef = randomStringGenerator();
+      const data = getOnePipeTransactionData(
+        requestRef,
+        RequestType.OpenAccount,
+        auth,
+        transactionConfig,
+      );
+      const header = headers(requestRef);
 
-    const transactionConfig = getTransactionConfig(transactionRef, options, {}, details);
-    const auth = getAuth(null,  null);
+      const response = await this.httpService
+        .post(url, data, {
+          headers: header,
+        })
+        .toPromise();
 
-    const data = getOnePipeTransactionData(requestRef, RequestType.OpenAccount, auth, transactionConfig)
+      const responseData = response.data;
 
-    this.logger.log(`Reachout to onepipe api`)
+      if (responseData.status === ResponseStatus.Successful) {
+        const providerResponse = responseData.data.provider_response;
+        result = {
+          status: responseData.status,
+          message: responseData.message,
+          data: {
+            provider: responseData.data.provider,
+            providerResponseCode: responseData.data.provider_response_code,
+            reference: providerResponse.reference,
+            accountNumber: providerResponse.account_number,
+            contractCode: providerResponse.contract_code,
+            accountReference: providerResponse.account_reference,
+            accountName: providerResponse.account_name,
+            currencyCode: providerResponse.currency_code,
+            bankName: providerResponse.bank_name,
+            bankCode: providerResponse.bank_code,
+            accountType: providerResponse.account_type,
+            status: providerResponse.status,
+            createdOn: providerResponse.created_on,
+          },
+        };
+      } else
+        result = {
+          status: responseData.status,
+          message: responseData.message,
+        };
+    } catch (error) {
+      this.logger.error(error);
+      result = {
+        status: ResponseStatus.Failed,
+        message: 'Failed to create account',
+      };
+    }
+    return result;
+  }
 
-    // try {
-    //   const response = await axios.post(url, data, {
-    //     headers: headers(requestRef),
-    //     method: 'POST'
-    //   });
-    //
-    //   this.logger.log(response)
-    // }catch (e) {
-    //   this.logger.error(`An error occurred ${e.message}`)
-    // }
+  async validateOTP(
+    options: CustomerConfig,
+    authType: AuthType,
+    otp: string,
+  ): Promise<OnePipeResponse<OTPValidationData>> {
+    let result: OnePipeResponse<OTPValidationData>;
+    try {
+      const url = buildUrl('transact', 'validate');
+      const secure = getSecure(process.env.SECRET, `${otp}`);
+      const auth = getAuth(authType, secure);
+      const transactionConfig = getTransactionConfig(
+        process.env.NODE_ENV === 'production' ? 'live' : 'inspect',
+        {},
+        'validate otp',
+      );
+      const requestRef = randomStringGenerator();
+      const data = {
+        ...getOnePipeTransactionData(
+          requestRef,
+          RequestType.Collect,
+          auth,
+          transactionConfig,
+        ),
+        customer: options,
+      };
 
-    // this.httpService.post(url, data, {
-    //   headers: headers(requestRef),
-    //   method: 'POST'
-    // }).pipe(map((response) => {
-    //   this.logger.log(response.data)
-    // }));
+      const header = headers(requestRef);
 
+      const response = await this.httpService
+        .post(url, data, {
+          headers: header,
+        })
+        .toPromise();
+
+      const responseData = response.data;
+      if (responseData.status === ResponseStatus.Successful)
+        result = {
+          status: responseData.status,
+          message: responseData.message,
+          data: {
+            provider: responseData.data.provider,
+            providerResponseCode: responseData.data.provider_response_code,
+            chargeToken: responseData.data.charge_token,
+            paymentOptions: responseData.data.paymentoptions,
+          },
+        };
+      else
+        result = {
+          status: responseData.status,
+          message: responseData.message,
+        };
+    } catch (error) {
+      this.logger.error(error);
+      result = {
+        status: ResponseStatus.Failed,
+        message: 'OTP validation failed',
+      };
+    }
+    return result;
   }
 }

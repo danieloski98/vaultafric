@@ -35,6 +35,7 @@ lerna-debug.log*
 
 # Project settings
 .env
+.env.main
 
 .idea/
 Gateway/
