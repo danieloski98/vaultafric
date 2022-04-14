@@ -3,7 +3,8 @@ import {
   AuthType,
   CustomerConfig,
   Data,
-  Details,
+  AccountOpeningDetails,
+  GetLoanDetails,
   Meta,
   RequestType,
   TransactionConfig,
@@ -19,7 +20,7 @@ export const getTransactionConfig = (
   mode: 'inspect' | 'live',
   meta: Meta,
   desc?: string,
-  details?: Details,
+  details?: AccountOpeningDetails | GetLoanDetails,
   customer?: CustomerConfig,
 ): TransactionConfig => {
   return {
