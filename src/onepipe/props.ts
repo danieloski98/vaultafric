@@ -14,7 +14,7 @@ export interface TransactionConfig {
   amount?: 0;
   customer?: CustomerConfig;
   meta?: Meta;
-  details?: Details;
+  details?: AccountOpeningDetails | GetLoanDetails;
 }
 
 export interface AuthConfig {
@@ -29,7 +29,7 @@ export interface Meta {
   another_key?: string;
 }
 
-export interface Details {
+export interface AccountOpeningDetails {
   name_on_account?: string;
   middlename?: string;
   dob?: string;
@@ -40,6 +40,16 @@ export interface Details {
   city?: string;
   state?: string;
   country?: 'NG';
+  otp_override?: Boolean;
+}
+
+export interface GetLoanDetails {
+  lender_code: string;
+  lender_product_code: string;
+  lender_offer_id: string;
+  destination_account: string;
+  destination_bank_code: string;
+  consent_token?: string;
 }
 
 export interface Data {
@@ -53,6 +63,7 @@ export enum RequestType {
   OpenAccount = 'open_account',
   GetBalance = 'get_balance',
   Collect = 'collect',
+  GetLoan = 'get_a_loan',
 }
 
 export enum AuthType {
@@ -70,6 +81,12 @@ export enum ResponseStatus {
   WaitingForOTP = 'WaitingForOTP',
   PendingValidation = 'PendingValidation',
   Failed = 'Failed',
+  OptionsDelivered = 'OptionsDelivered',
+}
+
+export interface AccountOption {
+  accountNumber: string;
+  bvn: string;
 }
 
 export interface OnePipeResponse<T> {
@@ -99,4 +116,64 @@ export interface OTPValidationData {
   provider: string;
   chargeToken: string;
   paymentOptions: [];
+}
+
+export interface BalanceData {
+  provider: string;
+  providerResponseCode: string;
+  reference: string;
+  accountId: string;
+  accountType: string;
+  accountNumber: string;
+  accountStatus: string;
+  availableBalance: string;
+  ledgerBalance: string;
+  minimumBalace: string;
+  currency: string;
+}
+
+export interface AvailableLoanData {
+  provider: string;
+  providerResponseCode: string;
+  reference: string;
+  offers: {
+    offerId: string;
+    offerExpiryDate: string;
+    loanAmount: number;
+    loanFee: number;
+    loanInterestPercent: number;
+    lenderCode: string;
+    lenderName: string;
+    lenderTermsUrl: string;
+    lenderProductCode: string;
+  }[];
+}
+
+export interface LoanStatus {
+  provider: string;
+  providerResponseCode: string;
+  reference: string;
+  loans: {
+    accountNumber: string;
+    accountName: string;
+    bankName: string;
+    bankCode: string;
+    loanDate: string;
+    loanInterestAmount: number;
+    loanDueAmount: number;
+    loanDueDate: string;
+    loanAmount: number;
+    loanFee: number;
+    loanInterestPercent: number;
+    lenderCode: string;
+    lenderName: string;
+    lenderTermsUrl: string;
+  }[];
+}
+
+export interface LoanData {
+  provider: string;
+  providerResponseCode: string;
+  reference: string;
+  transactionFinalAmount: number;
 }
