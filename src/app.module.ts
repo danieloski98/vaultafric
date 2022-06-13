@@ -8,11 +8,14 @@ import { InsuranceModule } from './insurance/insurance.module';
 import { NotificationModule } from './notification/notification.module';
 import { CardModule } from './card/card.module';
 import { OnepipeModule } from './onepipe/onepipe.module';
+import { MailingListModule } from './mailing-list/mailing-list.module';
 
 @Module({
   imports: [
-    AuthModule, SavingsModule, 
-    InvestmentModule, LoanModule,
+    AuthModule,
+    SavingsModule,
+    InvestmentModule,
+    LoanModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -21,12 +24,13 @@ import { OnepipeModule } from './onepipe/onepipe.module';
       password: process.env.DB_PASS || 'postgress',
       database: process.env.DB_NAME || 'money-vault',
       autoLoadEntities: true,
-      synchronize: true, // TODO: should not be used in prod.
+      synchronize: process.env.NODE_ENV === 'development' ? true : false, // TODO: should not be used in prod.
     }),
     InsuranceModule,
     NotificationModule,
     CardModule,
-    OnepipeModule
+    OnepipeModule,
+    MailingListModule,
   ],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import {config} from "dotenv";
+import { config } from 'dotenv';
 import { EmailNotSentException } from '../exception/email-not-sent-exception';
 
 config();
@@ -10,21 +10,20 @@ const transport = nodemailer.createTransport({
   secure: true,
   auth: {
     user: process.env.EMAIL_USER!,
-    pass: process.env.EMAIL_PASS!
+    pass: process.env.EMAIL_PASS!,
   },
-  connectionTimeout: +process.env.CONNECTION_TIMEOUT
+  connectionTimeout: +process.env.CONNECTION_TIMEOUT,
 });
 
 @Injectable()
 export class NotificationService {
-
   private readonly logger = new Logger(NotificationService.name);
 
   async sendOTP(email: string, otp: number): Promise<void> {
     this.logger.log(`Sending email to ${email}...`);
 
     const text = `Your OTP code is ${otp}`;
-    const html = `Your OTP code is <h3>${otp}</h3>`
+    const html = `Your OTP code is <h3>${otp}</h3>`;
 
     try {
       this.logger.log(`Sending email...`);
@@ -32,10 +31,11 @@ export class NotificationService {
       await transport.sendMail({
         from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
         subject: 'VaultAfrica OTP Code',
-        text, html,
-        to: email
+        text,
+        html,
+        to: email,
       });
-    }catch(error) {
+    } catch (error) {
       this.logger.error(`Error sending email: ${error}`);
       throw new EmailNotSentException();
     }
@@ -44,25 +44,48 @@ export class NotificationService {
     await Promise.resolve();
   }
 
-  async sendJointSavingInvite(content: string, email: string){
+  async sendJointSavingInvite(content: string, email: string) {
     const html = `<p>${content}</p>`;
 
-    try{
+    try {
       this.logger.log(`Sending email to ${email}`);
 
-        await transport.sendMail({
-          from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
-          subject: `JointSavings Group Invitation`,
-          html,
-          to: email
-        });
+      await transport.sendMail({
+        from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
+        subject: `JointSavings Group Invitation`,
+        html,
+        to: email,
+      });
 
-        this.logger.log(`...email sent`);
-    }catch (e) {
+      this.logger.log(`...email sent`);
+    } catch (e) {
       this.logger.error(`Error sending email: ${e}`);
       throw new EmailNotSentException();
     }
-
   }
 
+  async sendMailingListUserEmail(email: string): Promise<void> {
+    this.logger.log(`Sending email to ${email}...`);
+
+    const text = `Thank you for subscribing to Vaultafrica. We shall notify you via your email ones we go live`;
+    const html = `<p>Thank you for subscribing to Vaultafrica. We shall notify you via your email ones we go live</p>`;
+
+    // try {
+    //   this.logger.log(`Sending email...`);
+
+    //   await transport.sendMail({
+    //     from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
+    //     subject: 'VaultAfrica Mailing List',
+    //     text,
+    //     html,
+    //     to: email,
+    //   });
+    // } catch (error) {
+    //   this.logger.error(`Error sending email: ${error}`);
+    //   throw new EmailNotSentException();
+    // }
+
+    this.logger.log(`...email sent`);
+    await Promise.resolve();
+  }
 }
