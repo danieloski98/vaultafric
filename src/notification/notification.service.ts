@@ -70,20 +70,20 @@ export class NotificationService {
     const text = `Thank you for subscribing to Vaultafrica. We shall notify you via your email ones we go live`;
     const html = `<p>Thank you for subscribing to Vaultafrica. We shall notify you via your email ones we go live</p>`;
 
-    // try {
-    //   this.logger.log(`Sending email...`);
+    try {
+      this.logger.log(`Sending email...`);
 
-    //   await transport.sendMail({
-    //     from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
-    //     subject: 'VaultAfrica Mailing List',
-    //     text,
-    //     html,
-    //     to: email,
-    //   });
-    // } catch (error) {
-    //   this.logger.error(`Error sending email: ${error}`);
-    //   throw new EmailNotSentException();
-    // }
+      await transport.sendMail({
+        from: `"VaultAfrica" ${process.env.EMAIL_USER}`,
+        subject: 'VaultAfrica Mailing List',
+        text,
+        html,
+        to: email,
+      });
+    } catch (error) {
+      this.logger.error(`Error sending email: ${error}`);
+      throw new EmailNotSentException();
+    }
 
     this.logger.log(`...email sent`);
     await Promise.resolve();
