@@ -1,10 +1,14 @@
 import {
   Body,
   Controller,
-  Get, HttpCode, HttpStatus,
+  Get,
+  HttpCode,
+  HttpStatus,
   Param,
-  Post, UploadedFile,
-  UseGuards, UseInterceptors,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,13 +26,15 @@ import { ParseInvestmentIntPipe } from './pipe/parse-investment-int.pipe';
 @UseGuards(AuthGuard('jwt'))
 @Controller('investment')
 export class InvestmentController {
-
   constructor(private investmentService: InvestmentService) {}
 
-  @HttpCode(HttpStatus.OK )
+  @HttpCode(HttpStatus.OK)
   @Post()
-  invest(@GetUser() user: User,
-         @Body(new ValidationPipe({transform: true})) newUserInvestmentDto: NewUserInvestmentDto) {
+  invest(
+    @GetUser() user: User,
+    @Body(new ValidationPipe({ transform: true }))
+    newUserInvestmentDto: NewUserInvestmentDto,
+  ) {
     return this.investmentService.invest(user, newUserInvestmentDto);
   }
 
@@ -40,14 +46,22 @@ export class InvestmentController {
   @UseInterceptors(FileInterceptor('avatar'))
   @Post('register')
   createNewInvestment(
-    @Body(ParseInvestmentIntPipe, ParseDatePipe, new ValidationPipe({transform: true})) registerInvestmentDto: RegisterInvestmentDto,
-    @UploadedFile() file: Express.Multer.File) {
-    return this.investmentService.createInvestment(registerInvestmentDto, file?.buffer);
+    @Body(
+      ParseInvestmentIntPipe,
+      ParseDatePipe,
+      new ValidationPipe({ transform: true }),
+    )
+    registerInvestmentDto: RegisterInvestmentDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.investmentService.createInvestment(
+      registerInvestmentDto,
+      file?.buffer,
+    );
   }
 
   @Get(':id')
   getInvestmentById(@GetUser() user: User, @Param('id') id: string) {
     return this.investmentService.getInvestmentById(id);
   }
-
 }

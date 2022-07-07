@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotificationService } from 'src/notification/notification.service';
 import { Repository } from 'typeorm';
-import { MailingListDto } from './mailing-list-dto';
 import { MailingList } from './mailing-list-entity';
 
 @Injectable()
