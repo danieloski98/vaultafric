@@ -17,7 +17,7 @@ import { MailingListModule } from './mailing-list/mailing-list.module';
     InvestmentModule,
     LoanModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
       port: +process.env.DB_PORT || 5432,
       username: process.env.DB_USER || 'postgres',
