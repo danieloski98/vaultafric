@@ -9,6 +9,9 @@ import { NotificationModule } from './notification/notification.module';
 import { CardModule } from './card/card.module';
 import { OnepipeModule } from './onepipe/onepipe.module';
 import { MailingListModule } from './mailing-list/mailing-list.module';
+import { AdminAuthModule } from './admin-auth/admin-auth.module';
+import { RolesModule } from './roles/roles.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -17,7 +20,7 @@ import { MailingListModule } from './mailing-list/mailing-list.module';
     InvestmentModule,
     LoanModule,
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
       port: +process.env.DB_PORT || 5432,
       username: process.env.DB_USER || 'postgres',
@@ -31,6 +34,9 @@ import { MailingListModule } from './mailing-list/mailing-list.module';
     CardModule,
     OnepipeModule,
     MailingListModule,
+    AdminAuthModule,
+    RolesModule,
+    ReportModule,
   ],
 })
 export class AppModule {}

@@ -4,19 +4,18 @@ import { OtpRepository } from '../repository/otp.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import { Otp } from '../entity/otp.entity';
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 import { config } from 'dotenv';
 
 config();
 
 @Injectable()
 export class OtpService {
-
   private readonly logger = new Logger(OtpService.name, true);
 
   constructor(
     @InjectRepository(OtpRepository)
-    private otpRepository: OtpRepository
+    private otpRepository: OtpRepository,
   ) {}
 
   isExpired(model: Otp): boolean {
@@ -49,11 +48,12 @@ export class OtpService {
     const { otp, expiresIn } = this.generateOTP();
 
     // get existing OTP or create new
-    const otpModel = await this.otpRepository.findOne({ where: {user} }) ??
-      await this.otpRepository.save({otp, user, expiresIn});
+    const otpModel =
+      (await this.otpRepository.findOne({ where: { user } })) ??
+      (await this.otpRepository.save({ otp, user, expiresIn }));
 
     // update if OTP is expired
-    if(this.isExpired(otpModel)) {
+    if (this.isExpired(otpModel)) {
       otpModel.otp = otp;
       otpModel.expiresIn = expiresIn;
       await this.otpRepository.save(otpModel);
@@ -66,28 +66,27 @@ export class OtpService {
     this.logger.log(`Find otp model...`);
 
     const model = await this.otpRepository.findOne({
-      where: { otp }
+      where: { otp },
     });
 
-    if(model) {
+    if (model) {
       this.logger.log(`...model found`);
     }
 
     return model;
   }
 
-  async delete(otp: Otp) : Promise<void> {
-    this.logger.log(`Delete otp: ${otp.otp}`)
-    try{
+  async delete(otp: Otp): Promise<void> {
+    this.logger.log(`Delete otp: ${otp.otp}`);
+    try {
       await this.otpRepository.remove(otp);
-    }catch (e) {
+    } catch (e) {
       this.logger.error(e);
     }
-    this.logger.log(`OTP deleted;`)
-  }
-  
-  private static getExpiration(minute: number): number {
-    return DateTime.now().plus({minute}).toMillis();
+    this.logger.log(`OTP deleted;`);
   }
 
+  private static getExpiration(minute: number): number {
+    return DateTime.now().plus({ minute }).toMillis();
+  }
 }

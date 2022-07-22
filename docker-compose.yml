@@ -2,7 +2,7 @@ version: '3'
 
 services:
   be-vaultafrica:
-    image: vaultafrica/moneyvault
+    image: vaultafrica:1.0
     container_name: moneyvault-be
     restart: unless-stopped
     ports:

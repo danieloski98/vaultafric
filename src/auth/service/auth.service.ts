@@ -28,8 +28,7 @@ export class AuthService {
     private otpService: OtpService,
     private jwtService: JwtService,
     private notificationService: NotificationService,
-    private profileService: ProfileService,
-    private onePipeService: OnePipeService,
+    private profileService: ProfileService, // private onePipeService: OnePipeService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name, true);
@@ -52,11 +51,12 @@ export class AuthService {
     await this.profileService.createProfile(user);
 
     const otp = await this.otpService.getOTP(user);
-    await this.sendEmail(user.email, otp);
+    // await this.sendEmail(user.email, otp);
+    this.logger.log(otp);
 
     return {
       message: `A confirmation code has been sent to ${email}`,
-      otp,
+      user,
     };
   }
 

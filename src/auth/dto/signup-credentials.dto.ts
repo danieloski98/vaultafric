@@ -1,25 +1,32 @@
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class SignUpCredentialsDto {
-  @IsNotEmpty()
-  @IsEmail()
+  // @IsNotEmpty()
+  // @IsEmail()
   email: string;
 
-  @IsNotEmpty()
-  firstname: string
+  // @IsNotEmpty()
+  firstname: string;
 
-  @IsNotEmpty()
-  lastname: string
+  // @IsNotEmpty()
+  lastname: string;
 
-  @IsNotEmpty()
-  phoneNumber: string
+  // @IsNotEmpty()
+  phoneNumber: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(8)
-  @MaxLength(32)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?!['\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Password is weak'
-  })
+  // @IsNotEmpty()
+  // @IsString()
+  // @MinLength(8)
+  // @MaxLength(32)
+  // @Matches(/((?=.*\d)|(?=.*\W+))(?!['\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+  //   message: 'Password is weak',
+  // })
   password: string;
 }

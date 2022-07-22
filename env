@@ -1,0 +1,49 @@
+PORT=3000
+
+# Database settings
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASS=postgress
+DB_NAME=money-vault
+DB_PORT=5432
+
+# Email Options
+EMAIL_USER=no-reply@vaultafrica.co
+EMAIL_PASS=r601*F!46cwu
+EMAIL_HOST=vaultafrica.co
+CONNECTION_TIMEOUT=60000
+
+#JWT
+EXPIRES_IN="6 hours"
+JWT_KEY=d7i11ucyzsqmif9a2cyxjfp17xl73m7v469x8kqogouqjrqima8mib5mgc1kkoksazjobwg6140pvi4w
+
+# OTP Expiration Minute
+OTP_EXPIRATION=10
+
+# SECRET
+SECRET=pxxG5xBcaOF7SHmR
+API_KEY=OdkjaiqhRCUsiSbsfyNt_f179b68de5ae4186871550a09ee0d36c
+
+# FIXED SAVINGS
+FIXED_SAVINGS_INTEREST_RATE=2.0
+
+# FIXED DEPOSIT
+FIXED_DEPOSIT_INTEREST_RATE=5.0
+
+# DOLLAR SAVING
+DOLLAR_TO_NAIRA_RATE=560
+NAIRA_TO_DOLLAR_RATE=460
+DOLLAR_CONVERSION_CHARGE=100
+
+# LOAN
+LOAN_LIMIT=10000
+SERVICE_FEE=0.3
+
+# JOINT SAVINGS
+JOINT_SAVINGS_INTEREST=5
+INVITATION_EMAIL="You've been invited to join a savings group on VaultAfrica"
+
+# ONEPIPE
+URL=https://api.onepipe.io/v2
+TRANSACTION_REF=ref
+AUTH_PROVIDER=Demoprovider

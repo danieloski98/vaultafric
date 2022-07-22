@@ -16,27 +16,38 @@ import { ProfileController } from './controller/profile.controller';
 import { config } from 'dotenv';
 import { OnePipeService } from '../onepipe/one-pipe.service';
 import { HttpModule } from '@nestjs/axios';
+import { ReportRepository } from 'src/report/repository/report-repository';
 
 config();
 
 @Module({
   imports: [
     HttpModule,
-    PassportModule.register({defaultStrategy: 'jwt'}),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       secret: process.env.JWT_KEY!,
       signOptions: {
-        expiresIn: process.env.EXPIRES_IN
-      }
+        expiresIn: process.env.EXPIRES_IN,
+      },
     }),
-    TypeOrmModule.forFeature([UserRepository, OtpRepository, ProfileRepository])
+    TypeOrmModule.forFeature([
+      UserRepository,
+      OtpRepository,
+      ProfileRepository,
+      ReportRepository,
+    ]),
   ],
   controllers: [AuthController, ProfileController],
   providers: [
-    AuthService, JwtStrategy, OtpService,
-    AccountConfirmedGuard, NotificationService, ProfileService,
-    OnePipeService
+    AuthService,
+    JwtStrategy,
+    OtpService,
+    AccountConfirmedGuard,
+    NotificationService,
+    ProfileService,
+    OnePipeService,
   ],
-  exports: [JwtStrategy, PassportModule, AccountConfirmedGuard, ProfileService]
+  exports: [JwtStrategy, PassportModule, AccountConfirmedGuard, ProfileService],
 })
 export class AuthModule {}

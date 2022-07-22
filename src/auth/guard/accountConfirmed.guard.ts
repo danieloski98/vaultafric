@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { User } from '../entity/user.entity';
 
@@ -6,14 +12,16 @@ import { User } from '../entity/user.entity';
 export class AccountConfirmedGuard implements CanActivate {
   private readonly logger = new Logger(AccountConfirmedGuard.name, true);
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
     this.logger.log(`canActivate guard called`);
 
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
 
-    if(!user || !user.isAccountConfirmed) {
-      this.logger.error(`User account has not been confirmed`)
+    if (!user || !user.isAccountConfirmed) {
+      this.logger.error(`User account has not been confirmed`);
       throw new UnauthorizedException('Your account has not been confirmed');
     }
 
@@ -21,5 +29,4 @@ export class AccountConfirmedGuard implements CanActivate {
 
     return user.isAccountConfirmed;
   }
-
 }
