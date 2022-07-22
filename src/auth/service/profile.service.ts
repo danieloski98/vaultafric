@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '../entity/user.entity';
 import { UpdateAccountNameDto } from '../dto/update-accountName.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
@@ -20,36 +25,39 @@ export class ProfileService {
     private repository: ProfileRepository,
 
     @InjectRepository(UserRepository)
-    private userRepository: UserRepository
+    private userRepository: UserRepository,
   ) {}
 
   private async getProfile(user: User) {
-    this.logger.log('Get user profile')
-    return await this.repository.findOne({where: {user}});
+    this.logger.log('Get user profile');
+    return await this.repository.findOne({ where: { user } });
   }
 
   async getFullProfile(user: User) {
     this.logger.log(`Get user complete profile`);
 
     const profileEntity = await this.repository.findOne({
-      where: {user},
-      relations: ['user']
+      where: { user },
+      relations: ['user'],
     });
 
     const profile = {
       ...profileEntity,
-      ...profileEntity.user
+      ...profileEntity.user,
     };
     delete profile.user;
 
     return profile;
   }
 
-  async updateAccountName(user: User, updateAccountNameDto: UpdateAccountNameDto) {
+  async updateAccountName(
+    user: User,
+    updateAccountNameDto: UpdateAccountNameDto,
+  ) {
     this.logger.log('Update user account name started');
-    let profile = await this.getProfile(user);
+    const profile = await this.getProfile(user);
 
-    const {firstname, lastname, othernames} = updateAccountNameDto;
+    const { firstname, lastname, othernames } = updateAccountNameDto;
 
     profile.otherNames = othernames;
     await this.repository.save(profile);
@@ -60,7 +68,7 @@ export class ProfileService {
     await this.userRepository.save(user);
     this.logger.log('Update user account name completed');
 
-    return {message: `Account name updated`};
+    return { message: `Account name updated` };
   }
 
   async updateAddress(user: User, updateAddress: UpdateAddressDto) {
@@ -68,7 +76,7 @@ export class ProfileService {
 
     const profile = await this.getProfile(user);
 
-    Object.keys(updateAddress).forEach(key => {
+    Object.keys(updateAddress).forEach((key) => {
       profile[key] = updateAddress[key];
     });
 
@@ -76,7 +84,7 @@ export class ProfileService {
 
     this.logger.log('Update user address completed');
 
-    return {message: `Address updated`};
+    return { message: `Address updated` };
   }
 
   async updateContact(user: User, updateContactDto: UpdateContactDto) {
@@ -87,7 +95,7 @@ export class ProfileService {
 
     this.logger.log('Update user contact completed');
 
-    return {message: `Contact updated`};
+    return { message: `Contact updated` };
   }
 
   async updateEmail(user: User, updateEmailDto: UpdateEmailDto) {
@@ -98,60 +106,60 @@ export class ProfileService {
 
     this.logger.log('Update user email completed');
 
-    return {message: `Email updated`};
+    return { message: `Email updated` };
   }
 
   async updateAvatar(user: User, file: Express.Multer.File) {
     this.logger.log('Update user avatar');
 
-    if(!file) {
+    if (!file) {
       throw new BadRequestException(`Cannot open file`);
     }
 
-    let profile = await this.getProfile(user);
-    profile.avatar  = file.buffer.toString('base64');
+    const profile = await this.getProfile(user);
+    profile.avatar = file.buffer.toString('base64');
     await this.repository.save(profile);
 
     this.logger.log('Update avatar completed');
 
-    return {message: `Profile image updated`};
+    return { message: `Profile image updated` };
   }
 
   async createProfile(user: User) {
     this.logger.log(`Create user profile`);
-    const profile = this.repository.create({user});
-    await this.repository.save(profile)
+    const profile = this.repository.create({ user });
+    await this.repository.save(profile);
   }
 
   async getPin(user: User): Promise<{ transactionPin: number }> {
     this.logger.log(`Get pin for user ${user.id}`);
     const profile = await this.repository.findOne({
-      where: {user},
-      select: ['pin']
+      where: { user },
+      select: ['pin'],
     });
 
-    if(!profile.pin) {
+    if (!profile.pin) {
       throw new TransactionPinNotFoundException();
     }
 
-    return {transactionPin: profile.pin};
+    return { transactionPin: profile.pin };
   }
 
   async updateTransactionPin(user: User, transactionPinDto: TransactionPinDto) {
     this.logger.log(`Update transaction pin...`);
-    const {pin} = transactionPinDto;
+    const { pin } = transactionPinDto;
 
     const profile = await this.repository.findOne({
-      where: {user},
-      select: ['id', 'pin']
+      where: { user },
+      select: ['id', 'pin'],
     });
 
-    if(!profile){
+    if (!profile) {
       throw new NotFoundException(`User not found`);
     }
 
     profile.pin = pin;
-    await this.repository.save(profile)
+    await this.repository.save(profile);
 
     this.logger.log(`Transaction pin updated`);
 
@@ -163,10 +171,12 @@ export class ProfileService {
 
     const users = await this.userRepository.find({
       select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname'],
-      where: {phoneNumber: Like(`%${phone}%`), isAccountConfirmed: true}
+      where: { phoneNumber: Like(`%${phone}%`), isAccountConfirmed: true },
     });
 
-    this.logger.log(`${users.length} confirmed vaulters with phone like ${phone} found`);
+    this.logger.log(
+      `${users.length} confirmed vaulters with phone like ${phone} found`,
+    );
 
     return users;
   }
@@ -174,22 +184,23 @@ export class ProfileService {
   async exist(user: User) {
     this.logger.log(`Check if user exist ${user}`);
 
-    try{
-      return (await this.userRepository.count({
-        where: { id: user.id, email: user.email, isAccountConfirmed: true }
-      })) > 0;
-    } catch(e) {
+    try {
+      return (
+        (await this.userRepository.count({
+          where: { id: user.id, email: user.email, isAccountConfirmed: true },
+        })) > 0
+      );
+    } catch (e) {
       this.logger.error(`Cannot verify if user exist ${e}`);
       return false;
     }
   }
 
   async getAllUsers() {
-    this.logger.log(`Get all vaultafrica users`)
+    this.logger.log(`Get all vaultafrica users`);
 
     return await this.userRepository.find({
-      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname']
+      select: ['id', 'email', 'phoneNumber', 'firstname', 'lastname'],
     });
-
   }
 }

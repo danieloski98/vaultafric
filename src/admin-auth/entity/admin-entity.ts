@@ -32,6 +32,6 @@ export class AdminEntity extends BaseEntity {
   isAccountConfirmed: boolean;
 
   @ApiProperty()
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   active: boolean;
 }

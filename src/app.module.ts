@@ -10,6 +10,8 @@ import { CardModule } from './card/card.module';
 import { OnepipeModule } from './onepipe/onepipe.module';
 import { MailingListModule } from './mailing-list/mailing-list.module';
 import { AdminAuthModule } from './admin-auth/admin-auth.module';
+import { RolesModule } from './roles/roles.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { AdminAuthModule } from './admin-auth/admin-auth.module';
     OnepipeModule,
     MailingListModule,
     AdminAuthModule,
+    RolesModule,
+    ReportModule,
   ],
 })
 export class AppModule {}

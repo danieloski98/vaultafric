@@ -28,8 +28,8 @@ export class AdminRepository extends Repository<AdminEntity> {
     await this.update({ id }, { ...payload });
   }
 
-  async updateAvatar(id: string, avatar: Express.Multer.File) {
-    await this.update({ id }, { avatar: avatar.buffer.toString('base64') });
+  async updateAvatar(id: string, avatar: string) {
+    await this.update({ id }, { avatar: avatar });
   }
 
   async changeStatus(id: string, status: boolean) {

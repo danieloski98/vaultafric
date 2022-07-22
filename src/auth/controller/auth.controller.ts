@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, HttpCode, Post, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { SignUpCredentialsDto } from '../dto/signup-credentials.dto';
 import { SignInCredentialsDto } from '../dto/signin-credentails.dto';
@@ -9,7 +16,6 @@ import { DeleteUserAccountDto } from '../dto/delete-user-account.dto';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(private authService: AuthService) {}
 
   @HttpCode(200)
@@ -19,7 +25,7 @@ export class AuthController {
   }
 
   @Post('signup')
-  signUp(@Body(ValidationPipe) signUpCredentialsDto: SignUpCredentialsDto) {
+  signUp(@Body() signUpCredentialsDto: SignUpCredentialsDto) {
     return this.authService.signUp(signUpCredentialsDto);
   }
 
@@ -31,7 +37,10 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('confirm/account')
-  confirmCode(@Body(new ValidationPipe({transform: true})) confirmAccountDto: ConfirmAccountDto) {
+  confirmCode(
+    @Body(new ValidationPipe({ transform: true }))
+    confirmAccountDto: ConfirmAccountDto,
+  ) {
     return this.authService.confirmCode(confirmAccountDto);
   }
 
@@ -49,8 +58,9 @@ export class AuthController {
 
   @HttpCode(200)
   @Delete('delete')
-  deleteUserAccount(@Body(ValidationPipe) deleteAccountDto: DeleteUserAccountDto) {
+  deleteUserAccount(
+    @Body(ValidationPipe) deleteAccountDto: DeleteUserAccountDto,
+  ) {
     return this.authService.deleteAccount(deleteAccountDto);
   }
-
 }
