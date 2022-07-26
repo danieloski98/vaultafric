@@ -13,6 +13,8 @@ import { AdminAuthModule } from './admin-auth/admin-auth.module';
 import { RolesModule } from './roles/roles.module';
 import { ReportModule } from './report/report.module';
 
+console.log(process.env.NODE_ENV);
+
 @Module({
   imports: [
     AuthModule,
