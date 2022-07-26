@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { v4 } from 'uuid';
 
 @Entity({ name: 'Admin' })
 export class AdminEntity extends BaseEntity {

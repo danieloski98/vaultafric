@@ -24,11 +24,11 @@ export class ReportEntity extends BaseEntity {
   @Column({ nullable: false })
   message: string;
 
-  @Column({ default: REPORT_STATUS.PENDING, enum: REPORT_STATUS })
+  @Column({ default: REPORT_STATUS.PENDING, type: 'int' })
   status: number;
 
-  @Column({ default: new Date(Date.now()).toISOString(), type: 'date' })
-  created_at: string;
+  @Column({ type: 'text' })
+  created_at: Date;
 
   @JoinColumn({ referencedColumnName: 'id', name: 'user_id' })
   @ManyToOne(() => User, (user) => user.reports)

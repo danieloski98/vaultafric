@@ -1,6 +1,8 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from '../../auth/entity/user.entity';
 import { Duration } from '../../plan/base-plan';
+import { v4 } from 'uuid';
+
 
 @Entity({name: 'FixedDeposits'})
 @Unique('fd-user-name-duration-unique-constraint', ['user', 'name', 'start', 'end'])

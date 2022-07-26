@@ -1,5 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
+import { v4 } from 'uuid';
+
 
 @Entity({ name: 'OneTimePasswords' })
 @Unique(['otp', 'user'])

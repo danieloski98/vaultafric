@@ -26,38 +26,46 @@ export class InvestmentService {
     private investmentRepository: InvestmentRepository,
 
     private savingsService: SavingsService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
   ) {}
 
   async invest(user: User, newUserInvestmentDto: NewUserInvestmentDto) {
-    const { investmentId, amount, unit, pin, paymentMethod, interest, savingsId } = newUserInvestmentDto;
+    const {
+      investmentId,
+      amount,
+      unit,
+      pin,
+      paymentMethod,
+      interest,
+      savingsId,
+    } = newUserInvestmentDto;
     const investment = await this.getInvestmentById(investmentId);
 
     // throw exception if investment is inactive
-    if(!investment.isActive) {
+    if (!investment.isActive) {
       this.logger.error(`Inactive investment selected`);
       throw new InActiveInvestmentException();
     }
 
     // throw exception if amount is 0
-    if(amount === 0) {
+    if (amount === 0) {
       this.logger.log(`Invalid investment amount entered`);
       throw new InvalidInvestmentAmountException();
     }
 
     const existingInvestment = await this.userInvestmentRepository.findOne({
-      where: {user, investment}
+      where: { user, investment },
     });
 
     // throw exception if duplicate investment
-    if(existingInvestment) {
+    if (existingInvestment) {
       this.logger.error(`Duplicate investment`);
       throw new DuplicateInvestmentException();
     }
 
     const { transactionPin } = await this.profileService.getPin(user);
     // throw exception if pin does not match
-    if(transactionPin !== pin) {
+    if (transactionPin !== pin) {
       this.logger.error(`Transaction pin mismatch`);
       throw new TransactionPinMismatchException();
     }
@@ -66,24 +74,32 @@ export class InvestmentService {
     // withdraw money from savings account
 
     this.logger.log(`Payment method selected '${paymentMethod}'`);
-    if(paymentMethod == PaymentMethodsEnum.SavingsAccount) {
+    if (paymentMethod == PaymentMethodsEnum.SavingsAccount) {
       // this.logger.log(`Withdraw ${amount} from ${user.id} account`);
       await this.savingsService.withdraw(user, savingsId, amount);
     } else {
       // TODO: Withdraw from card
     }
 
-    const userInvestment = this.userInvestmentRepository.create({investment, interest, user, amount, unit, paymentMethod, savingsId});
+    const userInvestment = this.userInvestmentRepository.create({
+      investment,
+      interest,
+      user,
+      amount,
+      unit,
+      paymentMethod,
+      savingsId,
+    });
     await this.userInvestmentRepository.save(userInvestment);
 
-    return {message: `Investment into ${investment.title} was successful`};
+    return { message: `Investment into ${investment.title} was successful` };
   }
 
   async getInvestmentById(id: string) {
-    this.logger.log(`Get investment detail: ${id}`)
+    this.logger.log(`Get investment detail: ${id}`);
     const investment = this.investmentRepository.findOne({ where: { id } });
 
-    if(!investment) {
+    if (!investment) {
       this.logger.error(`Investment not found`);
       throw new InvestmentNotFoundException();
     }
@@ -95,16 +111,21 @@ export class InvestmentService {
   async getAllInvestments() {
     this.logger.log(`Get all investments`);
     return await this.investmentRepository.find({
-      select: ['id', 'roi', 'title', 'owners', 'units', 'avatar', 'isActive']
+      select: ['id', 'roi', 'title', 'owners', 'units', 'avatar', 'isActive'],
     });
   }
 
-  async createInvestment(registerInvestmentDto: RegisterInvestmentDto, avatar?: Buffer) {
+  async createInvestment(
+    registerInvestmentDto: RegisterInvestmentDto,
+    avatar?: Buffer,
+  ) {
     this.logger.log(`Register new investment`);
 
-    const investment = this.investmentRepository.create({...registerInvestmentDto});
+    const investment = this.investmentRepository.create({
+      ...registerInvestmentDto,
+    });
 
-    if(avatar) {
+    if (avatar) {
       this.logger.log(`Avatar found...converting to base64`);
       investment.avatar = avatar.toString('base64');
     }
@@ -112,6 +133,6 @@ export class InvestmentService {
     this.logger.log(`New investment created`);
     await this.investmentRepository.save(investment);
 
-    return {message: `New investment saved`};
+    return { message: `New investment saved` };
   }
 }

@@ -8,6 +8,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { v4 } from 'uuid';
+
 
 @Entity({ name: 'Users' })
 export class User extends BaseEntity {

@@ -14,7 +14,6 @@ export class MailingList extends BaseEntity {
   @ApiProperty()
   @Column({
     nullable: false,
-    type: 'varchar',
     default: new Date().toISOString(),
   })
   createdAt: string;

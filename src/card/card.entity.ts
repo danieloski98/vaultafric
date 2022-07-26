@@ -1,6 +1,8 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth/entity/user.entity';
 import { Unique } from 'typeorm';
+import { v4 } from 'uuid';
+
 
 @Entity({name: 'TransactionBase'})
 @Unique('card-unique-constraint', ['name', 'cid', 'expiry'])

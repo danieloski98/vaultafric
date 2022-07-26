@@ -1,6 +1,8 @@
 import { User } from '../../../auth/entity/user.entity';
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { JointSavings } from './joint-savings.entity';
+import { v4 } from 'uuid';
+
 
 @Entity({ name: `ActivationLink` })
 export class ActivationLink extends BaseEntity {
