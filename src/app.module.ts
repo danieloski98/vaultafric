@@ -20,14 +20,15 @@ import { ReportModule } from './report/report.module';
     InvestmentModule,
     LoanModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
-      port: +process.env.DB_PORT || 5432,
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASS || 'postgress',
-      database: process.env.DB_NAME || 'money-vault',
+      port: +process.env.MYSQL_PORT || 5432,
+      username: process.env.MYSQL_USER || 'postgres',
+      password: process.env.MYSQL_PASS || 'postgress',
+      database: process.env.MYSQL_DB || 'money-vault',
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV === 'development' ? true : false, // TODO: should not be used in prod.
+      synchronize: process.env.NODE_ENV === 'development' ? true : false,
+      // TODO: should not be used in prod.
     }),
     InsuranceModule,
     NotificationModule,

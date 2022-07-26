@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth/entity/user.entity';
+import { v4 } from 'uuid';
 
 @Entity({ name: 'Loan' })
 export class LoanEntity extends BaseEntity {

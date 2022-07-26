@@ -21,6 +21,7 @@ import { RegisterInvestmentDto } from './dto/register-investment.dto';
 import { ParseDatePipe } from '../savings/pipe/ParseDate.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseInvestmentIntPipe } from './pipe/parse-investment-int.pipe';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AccountConfirmedGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -28,6 +29,8 @@ import { ParseInvestmentIntPipe } from './pipe/parse-investment-int.pipe';
 export class InvestmentController {
   constructor(private investmentService: InvestmentService) {}
 
+  @ApiTags('ADMIN-INVESTMENT')
+  @ApiBody({ type: NewUserInvestmentDto })
   @HttpCode(HttpStatus.OK)
   @Post()
   invest(
@@ -38,12 +41,15 @@ export class InvestmentController {
     return this.investmentService.invest(user, newUserInvestmentDto);
   }
 
+  @ApiTags('INVESTMENT')
   @Get()
   getInvestments() {
     return this.investmentService.getAllInvestments();
   }
 
   @UseInterceptors(FileInterceptor('avatar'))
+  @ApiTags('INVESTMENT')
+  @ApiBody({ type: RegisterInvestmentDto })
   @Post('register')
   createNewInvestment(
     @Body(
@@ -60,6 +66,7 @@ export class InvestmentController {
     );
   }
 
+  @ApiTags('INVESTMENT')
   @Get(':id')
   getInvestmentById(@GetUser() user: User, @Param('id') id: string) {
     return this.investmentService.getInvestmentById(id);

@@ -1,5 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from 'typeorm';
 import { User } from './user.entity';
+import { v4 } from 'uuid';
+
 
 @Entity({name: 'Profile'})
 export class ProfileEntity extends BaseEntity {
