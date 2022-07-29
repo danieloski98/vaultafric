@@ -6,10 +6,11 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 } from 'uuid';
-
+import { ProfileEntity } from './profile.entity';
 
 @Entity({ name: 'Users' })
 export class User extends BaseEntity {
@@ -36,4 +37,8 @@ export class User extends BaseEntity {
 
   @OneToMany(() => ReportEntity, (report) => report.user)
   reports: ReportEntity[];
+
+  // @JoinColumn()
+  @OneToOne(() => ProfileEntity, (profile) => profile.user)
+  profile: ProfileEntity;
 }

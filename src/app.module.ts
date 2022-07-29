@@ -12,6 +12,7 @@ import { MailingListModule } from './mailing-list/mailing-list.module';
 import { AdminAuthModule } from './admin-auth/admin-auth.module';
 import { RolesModule } from './roles/roles.module';
 import { ReportModule } from './report/report.module';
+import { UserModule } from './user/user.module';
 
 console.log(process.env.NODE_ENV);
 
@@ -40,6 +41,7 @@ console.log(process.env.NODE_ENV);
     AdminAuthModule,
     RolesModule,
     ReportModule,
+    UserModule,
   ],
 })
 export class AppModule {}

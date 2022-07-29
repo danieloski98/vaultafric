@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
-  Get, HttpCode, HttpStatus,
-  Param, ParseUUIDPipe,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -21,6 +24,7 @@ import { ParseFriendsArrayPipe } from '../pipe/parse-friends-array-pipe';
 import { config } from 'dotenv';
 import { User } from '../../auth/entity/user.entity';
 import { WithdrawDto } from './dto/withdraw.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 config();
 
@@ -28,45 +32,68 @@ config();
 @UseGuards(AuthGuard('jwt'))
 @Controller('joint-savings')
 export class JointSavingsController {
+  constructor(private jointSavingsService: JointSavingsService) {}
 
-  constructor(
-    private jointSavingsService: JointSavingsService
-  ) {}
-
+  @ApiTags('JOINT-SAVINGS')
   @Get('find/:phone')
   async findParticipants(@Param('phone') phone: string) {
     return this.jointSavingsService.findParticipants(phone);
   }
 
+  @ApiTags('JOINT-SAVINGS')
   @Get('interest')
   async getInterestRate() {
-    return {interest: +process.env.JOINT_SAVINGS_INTEREST};
+    return { interest: +process.env.JOINT_SAVINGS_INTEREST };
   }
 
+  @ApiTags('JOINT-SAVINGS')
   @UseInterceptors(FileInterceptor('avatar'))
   @Post()
-  async createJointSavings(@GetUser() user: User,
-                           @Body(ParseDatePipe, ParseIntPipe, ParseFriendsArrayPipe,
-                             new ValidationPipe({transform: true})) createJointSavingsDto: CreateJointSavingsDto,
-                           @UploadedFile() file: Express.Multer.File) {
-    return this.jointSavingsService.createJointSavings(user, createJointSavingsDto, file?.buffer);
+  async createJointSavings(
+    @GetUser() user: User,
+    @Body(
+      ParseDatePipe,
+      ParseIntPipe,
+      ParseFriendsArrayPipe,
+      new ValidationPipe({ transform: true }),
+    )
+    createJointSavingsDto: CreateJointSavingsDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.jointSavingsService.createJointSavings(
+      user,
+      createJointSavingsDto,
+      file?.buffer,
+    );
   }
 
+  @ApiTags('JOINT-SAVINGS')
   @HttpCode(HttpStatus.OK)
   @Post('withdraw')
-  async withdraw(@GetUser() user: User, @Body(ParseIntPipe, new ValidationPipe({transform: true})) withdraw: WithdrawDto) {
+  async withdraw(
+    @GetUser() user: User,
+    @Body(ParseIntPipe, new ValidationPipe({ transform: true }))
+    withdraw: WithdrawDto,
+  ) {
     return this.jointSavingsService.withdraw(user, withdraw);
   }
 
+  @ApiTags('JOINT-SAVINGS')
   @Get('join/:groupId/:joinToken')
-  async joinJointSavingsGroup(@GetUser() user: User, @Param('groupId') groupId: string,
-                              @Param('joinToken') joinToken: string) {
+  async joinJointSavingsGroup(
+    @GetUser() user: User,
+    @Param('groupId') groupId: string,
+    @Param('joinToken') joinToken: string,
+  ) {
     return this.jointSavingsService.joinGroupSavings(user, groupId, joinToken);
   }
 
+  @ApiTags('JOINT-SAVINGS')
   @Get('group/:groupId')
-  async getGroupSavingsDetail(@GetUser() user: User,
-                              @Param('groupId', ParseUUIDPipe) groupId: string) {
+  async getGroupSavingsDetail(
+    @GetUser() user: User,
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+  ) {
     return this.jointSavingsService.getGroupDetail(user, groupId);
   }
 }

@@ -14,9 +14,8 @@ export class CardService {
 
   constructor(
     @InjectRepository(CardRepository)
-    private repository: CardRepository
+    private repository: CardRepository,
   ) {}
-
 
   async addCard(user: User, addCardDto: AddCardDto) {
     this.logger.log(`addCard called`);

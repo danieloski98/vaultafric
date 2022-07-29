@@ -43,9 +43,9 @@ export class ProfileService {
 
     const profile = {
       ...profileEntity,
-      ...profileEntity.user,
+      // ...profileEntity.user,
     };
-    delete profile.user;
+    // delete profile.user;
 
     return profile;
   }
@@ -127,7 +127,7 @@ export class ProfileService {
 
   async createProfile(user: User) {
     this.logger.log(`Create user profile`);
-    const profile = this.repository.create({ user });
+    const profile = this.repository.create(user);
     await this.repository.save(profile);
   }
 

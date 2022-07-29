@@ -6,7 +6,7 @@ export class AddCardDto {
   number: number;
 
   @Length(4)
-  @Matches(/[0-9]{2}\/[0-9]{2}$/, {message: `Invalid Expiry Date`})
+  @Matches(/[0-9]{2}\/[0-9]{2}$/, { message: `Invalid Expiry Date` })
   expiryDate: string;
 
   cvv: number;

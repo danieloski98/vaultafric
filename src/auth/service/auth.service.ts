@@ -48,6 +48,7 @@ export class AuthService {
     }
 
     const user = await this.userRepository.createUser(signUpCredentialsDto);
+    console.log(user);
     await this.profileService.createProfile(user);
 
     const otp = await this.otpService.getOTP(user);
