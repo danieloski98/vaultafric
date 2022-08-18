@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInvestmentRepository } from './user-investment-repository';
 import { NewUserInvestmentDto } from './dto/new-user-investment.dto';
@@ -13,6 +13,9 @@ import { TransactionPinMismatchException } from '../exception/transaction-pin-mi
 import { PaymentMethodsEnum } from './payment-methods.enum';
 import { SavingsService } from '../savings/savings.service';
 import { ProfileService } from '../auth/service/profile.service';
+import { SectorRepository } from './Repository/Secotor.repository';
+import Cloudinary from 'src/common/utils';
+import { join } from 'path';
 
 @Injectable()
 export class InvestmentService {
@@ -25,13 +28,16 @@ export class InvestmentService {
     @InjectRepository(InvestmentRepository)
     private investmentRepository: InvestmentRepository,
 
+    @InjectRepository(SectorRepository) private sectorRepo: SectorRepository,
+
     private savingsService: SavingsService,
     private profileService: ProfileService,
   ) {}
 
   async invest(user: User, newUserInvestmentDto: NewUserInvestmentDto) {
     const {
-      investmentId,
+      investment_id,
+      user_id,
       amount,
       unit,
       pin,
@@ -39,7 +45,7 @@ export class InvestmentService {
       interest,
       savingsId,
     } = newUserInvestmentDto;
-    const investment = await this.getInvestmentById(investmentId);
+    const investment = await this.getInvestmentById(investment_id);
 
     // throw exception if investment is inactive
     if (!investment.isActive) {
@@ -82,9 +88,9 @@ export class InvestmentService {
     }
 
     const userInvestment = this.userInvestmentRepository.create({
-      investment,
+      investment_id,
       interest,
-      user,
+      user_id,
       amount,
       unit,
       paymentMethod,
@@ -110,14 +116,59 @@ export class InvestmentService {
 
   async getAllInvestments() {
     this.logger.log(`Get all investments`);
-    return await this.investmentRepository.find({
-      select: ['id', 'roi', 'title', 'owners', 'units', 'avatar', 'isActive'],
+    const investments = await this.investmentRepository.find({
+      where: { isActive: true },
+      select: [
+        'id',
+        'roi',
+        'title',
+        'owners',
+        'units',
+        'picture',
+        'isActive',
+        'price',
+        'description',
+        'duration',
+        'riskLevel',
+        'start',
+        'end',
+      ],
     });
+    return {
+      message: 'Active Investments',
+      data: investments,
+    };
+  }
+
+  async getAllDraftsInvestments() {
+    this.logger.log(`Get all investments`);
+    const investments = await this.investmentRepository.find({
+      where: { isActive: false },
+      select: [
+        'id',
+        'roi',
+        'title',
+        'owners',
+        'units',
+        'picture',
+        'isActive',
+        'price',
+        'description',
+        'duration',
+        'riskLevel',
+        'start',
+        'end',
+      ],
+    });
+    return {
+      message: 'Inactive Investments',
+      data: investments,
+    };
   }
 
   async createInvestment(
     registerInvestmentDto: RegisterInvestmentDto,
-    avatar?: Buffer,
+    picture?: Buffer,
   ) {
     this.logger.log(`Register new investment`);
 
@@ -125,14 +176,65 @@ export class InvestmentService {
       ...registerInvestmentDto,
     });
 
-    if (avatar) {
-      this.logger.log(`Avatar found...converting to base64`);
-      investment.avatar = avatar.toString('base64');
+    if (picture) {
+      this.logger.log(`picture found...converting to base64`);
+      investment.picture = picture.toString('base64');
     }
     //
     this.logger.log(`New investment created`);
     await this.investmentRepository.save(investment);
 
     return { message: `New investment saved` };
+  }
+
+  async createSector(sector: string) {
+    const sec = sector.toLowerCase();
+    const sec_exist = await this.sectorRepo.find({
+      where: { sector: sec },
+    });
+
+    if (sec_exist.length > 0) {
+      throw new BadRequestException('Secotr with that name already exisits');
+    }
+
+    const new_sector = await this.sectorRepo.create({ sector: sec });
+    await this.sectorRepo.save(new_sector);
+
+    return {
+      message: 'Sector created',
+      data: new_sector,
+    };
+  }
+
+  async getAllSectors() {
+    const sectors = await this.sectorRepo.find();
+    this.logger.error('My Secotrs');
+    return {
+      message: 'sector found',
+      data: sectors,
+    };
+  }
+
+  async uploadInvestmentPicture(id: string, file: Express.Multer.File) {
+    const investment = await this.investmentRepository.find({
+      where: { id },
+    });
+
+    if (investment.length < 1) {
+      throw new BadRequestException('Investment with id not found');
+    }
+
+    this.logger.log(file);
+    const image = await Cloudinary.uploader.upload(
+      join(process.cwd(), file.path),
+    );
+
+    await this.investmentRepository.update(
+      { id },
+      { picture: image.secure_url },
+    );
+    return {
+      message: 'Investment picture updated',
+    };
   }
 }

@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -22,9 +23,10 @@ import { ParseDatePipe } from '../savings/pipe/ParseDate.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseInvestmentIntPipe } from './pipe/parse-investment-int.pipe';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { CreateSectorDTO } from './dto/create-sector-dto';
 
-@UseGuards(AccountConfirmedGuard)
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AccountConfirmedGuard)
+// @UseGuards(AuthGuard('jwt'))
 @Controller('investment')
 export class InvestmentController {
   constructor(private investmentService: InvestmentService) {}
@@ -47,17 +49,22 @@ export class InvestmentController {
     return this.investmentService.getAllInvestments();
   }
 
+  @ApiTags('ADMIN-INVESTMENT')
+  @Get('all/drafts')
+  getDraftsInvestments() {
+    return this.investmentService.getAllDraftsInvestments();
+  }
+
   @UseInterceptors(FileInterceptor('avatar'))
   @ApiTags('INVESTMENT')
   @ApiBody({ type: RegisterInvestmentDto })
-  @Post('register')
+  @Post('user/register')
   createNewInvestment(
-    @Body(
-      ParseInvestmentIntPipe,
-      ParseDatePipe,
-      new ValidationPipe({ transform: true }),
-    )
-    registerInvestmentDto: RegisterInvestmentDto,
+    @Body()
+    registerInvestmentDto: // ParseInvestmentIntPipe,
+    // ParseDatePipe,
+    // new ValidationPipe({ transform: true }),
+    RegisterInvestmentDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.investmentService.createInvestment(
@@ -70,5 +77,28 @@ export class InvestmentController {
   @Get(':id')
   getInvestmentById(@GetUser() user: User, @Param('id') id: string) {
     return this.investmentService.getInvestmentById(id);
+  }
+
+  @ApiTags('INVESTMENT')
+  @Get('sectors/all')
+  getSectors() {
+    return this.investmentService.getAllSectors();
+  }
+
+  @ApiTags('ADMIN-INVESTMENT')
+  @ApiBody({ type: CreateSectorDTO })
+  @Post('sectors')
+  createSector(@Body() body: CreateSectorDTO) {
+    return this.investmentService.createSector(body.sector);
+  }
+
+  @ApiTags('ADMIN-INVESTMENT')
+  @UseInterceptors(FileInterceptor('picture', { dest: 'investent-pics' }))
+  @Put('picture/:id')
+  uploadId(
+    @Param() param: { id: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.investmentService.uploadInvestmentPicture(param.id, file);
   }
 }

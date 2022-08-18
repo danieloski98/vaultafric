@@ -18,8 +18,8 @@ import { AccountConfirmedGuard } from '../auth/guard/accountConfirmed.guard';
 import { PayLoanDto } from './dto/pay-loan.dto';
 import { ApiTags } from '@nestjs/swagger';
 
-@UseGuards(AccountConfirmedGuard)
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AccountConfirmedGuard)
+// @UseGuards(AuthGuard('jwt'))
 @Controller('loan')
 export class LoanController {
   constructor(private loanService: LoanService) {}
@@ -32,6 +32,12 @@ export class LoanController {
     @Body(ValidationPipe) loanRequestDto: LoanRequestDto,
   ) {
     return this.loanService.loanRequest(user, loanRequestDto);
+  }
+
+  @ApiTags('ADMIN-LOANS')
+  @Get()
+  getloand() {
+    return this.loanService.getALlUserLoans();
   }
 
   @ApiTags('LOANS')
@@ -47,7 +53,7 @@ export class LoanController {
   }
 
   @ApiTags('LOANS')
-  @Get()
+  @Get('user/history')
   getLoanHistory(
     @GetUser() user: User,
     // @Query('take', ParseIntPipe)take: number = 5,
