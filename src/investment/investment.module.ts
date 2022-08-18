@@ -12,16 +12,20 @@ import { JointSavingsRepository } from '../savings/joint-savings/repository/join
 import { ProfileService } from '../auth/service/profile.service';
 import { UserRepository } from '../auth/repository/user.repository';
 import { SavingsModule } from '../savings/savings.module';
+import { SectorRepository } from './Repository/Secotor.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      UserInvestmentRepository, InvestmentRepository,
-      ProfileRepository, UserRepository
+      UserInvestmentRepository,
+      InvestmentRepository,
+      ProfileRepository,
+      UserRepository,
+      SectorRepository,
     ]),
-    SavingsModule
+    SavingsModule,
   ],
   controllers: [InvestmentController],
-  providers: [InvestmentService, SavingsService, ProfileService]
+  providers: [InvestmentService, SavingsService, ProfileService],
 })
 export class InvestmentModule {}

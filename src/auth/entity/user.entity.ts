@@ -1,3 +1,5 @@
+import { UserInvestmentEntity } from 'src/investment/entity/user-investment.entity';
+import { LoanEntity } from 'src/loan/loan.entity';
 import { ReportEntity } from 'src/report/entity/report';
 import {
   BaseEntity,
@@ -41,4 +43,10 @@ export class User extends BaseEntity {
   // @JoinColumn()
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
+
+  @OneToMany(() => UserInvestmentEntity, (invest) => invest.user)
+  investments: UserInvestmentEntity[];
+
+  @OneToMany(() => LoanEntity, (loan) => loan.user)
+  loans: LoanEntity[];
 }

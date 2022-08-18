@@ -13,7 +13,9 @@ export class CrudService {
 
   async getAllUSers() {
     // const users = await this.profileRepo.find({ relations: ['user'] });
-    const users = await this.userRepo.find({ relations: ['profile'] });
+    const users = await this.userRepo.find({
+      relations: ['profile', 'investments'],
+    });
 
     return {
       message: 'User found',
