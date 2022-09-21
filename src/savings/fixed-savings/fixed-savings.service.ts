@@ -1,4 +1,4 @@
-import { Injectable, Logger} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FixedSavingsRepository } from './fixed-savings.repository';
 import { User } from '../../auth/entity/user.entity';
@@ -18,7 +18,6 @@ import { InvalidWithdrawAmountException } from '../../exception/invalid-withdraw
 
 @Injectable()
 export class FixedSavingsService {
-
   private readonly logger = new Logger(FixedSavingsService.name, true);
 
   constructor(
@@ -26,30 +25,34 @@ export class FixedSavingsService {
     private fixedSavingsRepository: FixedSavingsRepository,
 
     @InjectRepository(ProfileRepository)
-    private profileRepository: ProfileRepository
+    private profileRepository: ProfileRepository,
   ) {}
 
-  async createSavings(user: User, fixedSavingsDto: FixedSavingsDto, avatar?: Buffer) {
+  async createSavings(
+    user: User,
+    fixedSavingsDto: FixedSavingsDto,
+    avatar?: Buffer,
+  ) {
     this.logger.log(`Create new fixed savings plan...`);
 
     const { start, end, name, occurrence } = fixedSavingsDto;
 
-    if(start > end) {
-      this.logger.error(`Invalid date selection: start: ${start}, end: ${end}`)
+    if (start > end) {
+      this.logger.error(`Invalid date selection: start: ${start}, end: ${end}`);
       throw new InvalidDateException();
     }
 
-    if(avatar) {
+    if (avatar) {
       this.logger.log(`Convert plan image to base64`);
       fixedSavingsDto.avatar = avatar.toString('base64');
     }
 
     this.logger.log(`Verify non-duplicate records for Fixed Savings plan`);
     const plan = await this.fixedSavingsRepository.findOne({
-      where: { user, name, occurrence }
+      where: { user, name, occurrence },
     });
 
-    if(plan) {
+    if (plan) {
       this.logger.error(`...fixed plan exist`);
       throw new DuplicateFixedSavingsException();
     }
@@ -64,15 +67,19 @@ export class FixedSavingsService {
   async updateSavings(updateDeposit: UpdatedFixedSavingsDto) {
     this.logger.log(`Update fixed savings plan`);
 
-    this.logger.log(`Fetch Fixed Savings plan...`)
-    const fixedSavings = await this.fixedSavingsRepository.findOne({ id:updateDeposit.id });
+    this.logger.log(`Fetch Fixed Savings plan...`);
+    const fixedSavings = await this.fixedSavingsRepository.findOne({
+      id: updateDeposit.id,
+    });
 
-    if(!fixedSavings) {
+    if (!fixedSavings) {
       this.logger.error(`Fixed savings plan not found`);
       throw new FixedSavingsNotFoundException();
     }
 
-    const properties = Object.keys(updateDeposit).filter(prop => prop != undefined);
+    const properties = Object.keys(updateDeposit).filter(
+      (prop) => prop != undefined,
+    );
 
     this.logger.log(`Update Fixed Savings plan`);
     for (const property of properties) {
@@ -81,24 +88,26 @@ export class FixedSavingsService {
 
     await fixedSavings.save();
     this.logger.log(`Fixed savings plan updated`, fixedSavings.id);
-    return {message: `Fixed Savings plan updated`};
+    return { message: `Fixed Savings plan updated` };
   }
 
   async deleteSavings(user: User, id: string) {
     this.logger.log(`Delete Fixed savings`, id);
-    const plan = await this.fixedSavingsRepository.findOne({ where: {user, id} });
+    const plan = await this.fixedSavingsRepository.findOne({
+      where: { user, id },
+    });
 
-    if(!plan) {
+    if (!plan) {
       this.logger.error(`Fixed Savings plan not found`);
       throw new FixedSavingsNotFoundException();
     }
 
-    if(plan.isActive) {
+    if (plan.isActive) {
       this.logger.error(`Fixed savings plan is active, cannot be deleted`);
       throw new FixedSavingsDeleteException();
     }
 
-    await this.fixedSavingsRepository.delete(plan)
+    await this.fixedSavingsRepository.delete(plan);
 
     this.logger.log(`Fixed Savings plan delete`, plan.id);
 
@@ -110,7 +119,17 @@ export class FixedSavingsService {
 
     return this.fixedSavingsRepository.find({
       where: { user },
-      select: ['id', 'name', 'start', 'end', 'balance', 'amount', 'isActive', 'isElapsed', 'occurrence']
+      select: [
+        'id',
+        'name',
+        'start',
+        'end',
+        'balance',
+        'amount',
+        'isActive',
+        'isElapsed',
+        'occurrence',
+      ],
     });
   }
 
@@ -118,10 +137,10 @@ export class FixedSavingsService {
     this.logger.log(`Get savings plan by id`);
 
     const plan = await this.fixedSavingsRepository.findOne({
-      where: { user, id }
+      where: { user, id },
     });
 
-    if(!plan) {
+    if (!plan) {
       this.logger.error(`Cannot find fixed savings record`);
       throw new FixedSavingsNotFoundException();
     }
@@ -133,7 +152,7 @@ export class FixedSavingsService {
     this.logger.log(`Get completed fixed savings plan by user`);
 
     return this.fixedSavingsRepository.find({
-      where: { isElapsed: true, isActive: false, user }
+      where: { isElapsed: true, isActive: false, user },
     });
   }
 
@@ -141,7 +160,17 @@ export class FixedSavingsService {
     this.logger.log(`Get active fixed savings plan for user`, user.id);
     return this.fixedSavingsRepository.find({
       where: { user, isActive: true },
-      select: ['id', 'name', 'start', 'end', 'balance', 'amount', 'isActive', 'isElapsed', 'occurrence']
+      select: [
+        'id',
+        'name',
+        'start',
+        'end',
+        'balance',
+        'amount',
+        'isActive',
+        'isElapsed',
+        'occurrence',
+      ],
     });
   }
 
@@ -150,15 +179,27 @@ export class FixedSavingsService {
 
     return this.fixedSavingsRepository.find({
       where: { user, isActive: false },
-      select: ['id', 'name', 'start', 'end', 'balance', 'amount', 'isActive', 'isElapsed', 'occurrence']
+      select: [
+        'id',
+        'name',
+        'start',
+        'end',
+        'balance',
+        'amount',
+        'isActive',
+        'isElapsed',
+        'occurrence',
+      ],
     });
   }
 
   async stop(user: User, id: string) {
     this.logger.log(`Stop fixed savings plan`);
-    const plan = await this.fixedSavingsRepository.findOne({ where: {user, id} });
+    const plan = await this.fixedSavingsRepository.findOne({
+      where: { user, id },
+    });
 
-    if(!plan) {
+    if (!plan) {
       this.logger.error(`Fixed savings plan not found`);
       throw new FixedSavingsNotFoundException();
     }
@@ -166,38 +207,39 @@ export class FixedSavingsService {
     await this.fixedSavingsRepository.save({ id, isActive: false });
     this.logger.log(`Fixed savings plan stopped`, plan.id);
 
-    return {message: `'${plan.name}' fixed savings plan stopped`};
+    return { message: `'${plan.name}' fixed savings plan stopped` };
   }
 
   async withdrawSavings(user: User, withdrawDto: WithdrawDto) {
     this.logger.log(`Withdraw from fixed savings...`);
 
-    const  {id, amount, pin} = withdrawDto;
+    const { id, amount, pin } = withdrawDto;
 
-    if(amount == 0) {
+    if (amount == 0) {
       throw new InvalidWithdrawAmountException();
     }
 
     const savingsPlan = await this.fixedSavingsRepository.findOne({
       where: { user, id },
-      select: ['id', 'balance', 'amount', 'isActive', 'isElapsed']
+      select: ['id', 'balance', 'amount', 'isActive', 'isElapsed'],
     });
 
-    if(!savingsPlan) {
-      this.logger.error(`Savings plan not found`)
+    if (!savingsPlan) {
+      this.logger.error(`Savings plan not found`);
       throw new FixedSavingsNotFoundException();
     }
 
-    if(savingsPlan.balance < amount) {
-      this.logger.error(`Requested amount is greater than balance`)
+    if (savingsPlan.balance < amount) {
+      this.logger.error(`Requested amount is greater than balance`);
       throw new InsufficientBalanceException();
     }
 
     const profile = await this.profileRepository.findOne({
-      where: {user}, select: ['pin']
+      where: { user },
+      select: ['pin'],
     });
 
-    if(profile.pin !== pin) {
+    if (profile.pin !== pin) {
       this.logger.error(`Transaction pin did not match`);
       throw new TransactionPinMismatchException();
     }
@@ -215,24 +257,24 @@ export class FixedSavingsService {
     this.logger.log(`Get account balance for ${id}`);
 
     return this.fixedSavingsRepository.findOne({
-      where: {id, user},
-      select: ['id', 'balance']
+      where: { id, user },
+      select: ['id', 'balance'],
     });
   }
 
   async updateAccountBalance(id: string, balance: number) {
-    await this.fixedSavingsRepository.save({id, balance});
+    await this.fixedSavingsRepository.save({ id, balance });
   }
 
   async getTotalBalance(user: User) {
     const fixedSavings = await this.fixedSavingsRepository.find({
-      where: {user},
-      select: ['balance']
+      where: { user },
+      select: ['balance'],
     });
 
     let balance = 0;
-    if(fixedSavings.length > 0) {
-      fixedSavings.forEach(savings => balance += savings.balance);
+    if (fixedSavings.length > 0) {
+      fixedSavings.forEach((savings) => (balance += savings.balance));
     }
 
     return { balance };

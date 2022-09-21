@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  HttpCode,
-  Post,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { SignUpCredentialsDto } from '../dto/signup-credentials.dto';
 import { SignInCredentialsDto } from '../dto/signin-credentails.dto';
@@ -22,7 +15,7 @@ export class AuthController {
   @ApiTags('USER_AUTH')
   @HttpCode(200)
   @Post('signin')
-  signIn(@Body(ValidationPipe) signInCredentialsDto: SignInCredentialsDto) {
+  signIn(@Body() signInCredentialsDto: SignInCredentialsDto) {
     return this.authService.signIn(signInCredentialsDto);
   }
 
@@ -37,7 +30,7 @@ export class AuthController {
   @ApiBody({ type: SendOtpDto })
   @HttpCode(200)
   @Post('resend/otp')
-  resendUserOtp(@Body(ValidationPipe) sendOtpDto: SendOtpDto) {
+  resendUserOtp(@Body() sendOtpDto: SendOtpDto) {
     return this.authService.sendOtp(sendOtpDto);
   }
 
@@ -46,7 +39,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('confirm/account')
   confirmCode(
-    @Body(new ValidationPipe({ transform: true }))
+    @Body()
     confirmAccountDto: ConfirmAccountDto,
   ) {
     return this.authService.confirmCode(confirmAccountDto);
@@ -56,7 +49,7 @@ export class AuthController {
   @ApiBody({ type: SendOtpDto })
   @HttpCode(200)
   @Post('reset/password')
-  reset(@Body(ValidationPipe) sendOtpDto: SendOtpDto) {
+  reset(@Body() sendOtpDto: SendOtpDto) {
     return this.authService.sendOtp(sendOtpDto);
   }
 
@@ -64,7 +57,7 @@ export class AuthController {
   @ApiBody({ type: NewPasswordDto })
   @HttpCode(200)
   @Post('create/password')
-  createPassword(@Body(ValidationPipe) newPasswordDto: NewPasswordDto) {
+  createPassword(@Body() newPasswordDto: NewPasswordDto) {
     return this.authService.createNewPassword(newPasswordDto);
   }
 
@@ -72,9 +65,7 @@ export class AuthController {
   @ApiBody({ type: DeleteUserAccountDto })
   @HttpCode(200)
   @Delete('delete')
-  deleteUserAccount(
-    @Body(ValidationPipe) deleteAccountDto: DeleteUserAccountDto,
-  ) {
+  deleteUserAccount(@Body() deleteAccountDto: DeleteUserAccountDto) {
     return this.authService.deleteAccount(deleteAccountDto);
   }
 }

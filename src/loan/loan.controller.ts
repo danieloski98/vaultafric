@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { LoanService } from './loan.service';
 import { LoanRequestDto } from './dto/loan-request.dto';
@@ -27,10 +26,7 @@ export class LoanController {
   @ApiTags('LOANS')
   @HttpCode(HttpStatus.OK)
   @Post()
-  getLoan(
-    @GetUser() user: User,
-    @Body(ValidationPipe) loanRequestDto: LoanRequestDto,
-  ) {
+  getLoan(@GetUser() user: User, @Body() loanRequestDto: LoanRequestDto) {
     return this.loanService.loanRequest(user, loanRequestDto);
   }
 
