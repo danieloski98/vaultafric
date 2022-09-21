@@ -67,7 +67,7 @@ export class AuthService {
     const { email, password } = signInCredentialsDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'password'],
+      select: ['id', 'email', 'password', 'profile'],
     });
 
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -75,7 +75,7 @@ export class AuthService {
 
       this.logger.log(`User sign in successful - access token generated`);
 
-      return { accessToken };
+      return { accessToken, user };
     } else {
       this.logger.error(`User sign in is not successful`);
       throw new BadRequestException(`Sign in failed`);

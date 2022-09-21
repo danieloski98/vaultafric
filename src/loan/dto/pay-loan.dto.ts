@@ -1,7 +1,5 @@
 import { IsInt } from 'class-validator';
-
 export class PayLoanDto {
-
   @IsInt()
   amount: number;
 
@@ -9,5 +7,4 @@ export class PayLoanDto {
   pin: number;
 
   card: string;
-
 }
