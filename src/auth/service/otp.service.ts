@@ -18,16 +18,16 @@ export class OtpService {
     private otpRepository: OtpRepository,
   ) {}
 
-  isExpired(model: Otp): boolean {
-    this.logger.log(`Has OTP expired...`);
+  // isExpired(model: Otp): boolean {
+  //   this.logger.log(`Has OTP expired...`);
 
-    const currentMillisecond = OtpService.getExpiration(0);
-    const isExpired = currentMillisecond > model.expiresIn;
+  //   const currentMillisecond = OtpService.getExpiration(0);
+  //   const isExpired = currentMillisecond > model.expiresIn;
 
-    this.logger.log(`...${isExpired}`);
+  //   this.logger.log(`...${isExpired}`);
 
-    return isExpired;
-  }
+  //   return isExpired;
+  // }
 
   private generateOTP() {
     this.logger.log(`Generating OTP...`);
@@ -44,22 +44,26 @@ export class OtpService {
     return { otp, expiresIn };
   }
 
-  async getOTP(user: User): Promise<number> {
-    const { otp, expiresIn } = this.generateOTP();
+  async getOTP(user: string): Promise<number> {
+    const { otp } = this.generateOTP();
 
     // get existing OTP or create new
-    const otpModel =
-      (await this.otpRepository.findOne({ where: { user } })) ??
-      (await this.otpRepository.save({ otp, user, expiresIn }));
+    const otpModel = await this.otpRepository.findOne({
+      where: { user_id: user },
+    });
 
     // update if OTP is expired
-    if (this.isExpired(otpModel)) {
-      otpModel.otp = otp;
-      otpModel.expiresIn = expiresIn;
-      await this.otpRepository.save(otpModel);
+    if (otpModel !== undefined) {
+      return otpModel.otp;
     }
+    const newOtp = await this.otpRepository.create({ otp, user_id: user });
+    const timeout = setTimeout(async () => {
+      await this.delete(otpModel);
+      clearTimeout(timeout);
+    }, 10000 * 60);
+    await this.otpRepository.save(newOtp);
 
-    return otpModel.otp;
+    return otp;
   }
 
   async getOtpModel(otp: number): Promise<Otp> {

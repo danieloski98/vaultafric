@@ -37,6 +37,9 @@ export class User extends BaseEntity {
   @Column({ default: false, select: false })
   isAccountConfirmed: boolean;
 
+  @Column({ default: false, select: false })
+  isBVNVerified: boolean;
+
   @OneToMany(() => ReportEntity, (report) => report.user)
   reports: ReportEntity[];
 

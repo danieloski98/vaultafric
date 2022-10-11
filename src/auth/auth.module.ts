@@ -17,6 +17,9 @@ import { config } from 'dotenv';
 import { OnePipeService } from '../onepipe/one-pipe.service';
 import { HttpModule } from '@nestjs/axios';
 import { ReportRepository } from 'src/report/repository/report-repository';
+import { EmailService } from 'src/generalservice/emailservice/emailservice.service';
+import { IDRepository } from './repository/ID.repository';
+import { VerificationService } from './services/verification/verification.service';
 
 config();
 
@@ -36,6 +39,7 @@ config();
       OtpRepository,
       ProfileRepository,
       ReportRepository,
+      IDRepository,
     ]),
   ],
   controllers: [AuthController, ProfileController],
@@ -47,6 +51,8 @@ config();
     NotificationService,
     ProfileService,
     OnePipeService,
+    EmailService,
+    VerificationService,
   ],
   exports: [JwtStrategy, PassportModule, AccountConfirmedGuard, ProfileService],
 })
