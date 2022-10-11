@@ -30,6 +30,7 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @ApiTags('USER')
+  @ApiBody({ type: UpdateAccountNameDto })
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: UpdateAccountNameDto })
   @Patch('account/name')
@@ -41,6 +42,7 @@ export class ProfileController {
   }
 
   @ApiTags('USER')
+  @ApiBody({ type: UpdateAddressDto })
   @HttpCode(HttpStatus.OK)
   @Patch('address')
   updateAddress(
@@ -51,6 +53,7 @@ export class ProfileController {
   }
 
   @ApiTags('USER')
+  @ApiBody({ type: UpdateContactDto })
   @HttpCode(HttpStatus.OK)
   @Patch('contact')
   updateContact(
@@ -61,6 +64,7 @@ export class ProfileController {
   }
 
   @ApiTags('USER')
+  @ApiBody({ type: UpdateEmailDto })
   @HttpCode(HttpStatus.OK)
   @Patch('email')
   updateEmail(
@@ -82,6 +86,7 @@ export class ProfileController {
   }
 
   @ApiTags('USER')
+  @ApiBody({ type: TransactionPinDto })
   @HttpCode(HttpStatus.OK)
   @Patch('pin')
   updateTransactionPin(

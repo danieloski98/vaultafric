@@ -1,21 +1,20 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { User } from './user.entity';
-import { v4 } from 'uuid';
-
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 @Entity({ name: 'OneTimePasswords' })
-@Unique(['otp', 'user'])
+@Unique(['otp'])
 export class Otp extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, { eager: true, onDelete: 'CASCADE'})
-  @JoinColumn()
-  user: User;
+  @Column({ nullable: false })
+  user_id: string;
 
-  @Column({nullable: false})
+  @Column({ nullable: false })
   otp: number;
-
-  @Column({nullable: false, type: 'bigint'})
-  expiresIn: number;
 }

@@ -43,5 +43,6 @@ console.log(process.env.NODE_ENV);
     ReportModule,
     UserModule,
   ],
+  providers: [],
 })
 export class AppModule {}

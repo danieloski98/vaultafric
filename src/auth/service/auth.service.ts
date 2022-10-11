@@ -19,6 +19,7 @@ import { ProfileService } from './profile.service';
 import { DeleteUserAccountDto } from '../dto/delete-user-account.dto';
 import { OnePipeService } from '../../onepipe/one-pipe.service';
 import { isExpired } from '../../common/utils';
+import { EmailService } from 'src/generalservice/emailservice/emailservice.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,7 @@ export class AuthService {
     private jwtService: JwtService,
     private notificationService: NotificationService,
     private profileService: ProfileService, // private onePipeService: OnePipeService,
+    private emailService: EmailService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name, true);
@@ -51,7 +53,12 @@ export class AuthService {
     console.log(user);
     await this.profileService.createProfile(user);
 
-    const otp = await this.otpService.getOTP(user);
+    const otp = await this.otpService.getOTP(user.id);
+    const emailNoti = await this.emailService.sendConfirmationEmail(
+      user.email,
+      otp,
+    );
+    console.log(emailNoti);
     // await this.sendEmail(user.email, otp);
     this.logger.log(otp);
 
@@ -92,13 +99,8 @@ export class AuthService {
       throw new BadRequestException(`OTP not found`);
     }
 
-    if (isExpired(otpModel.expiresIn)) {
-      this.logger.error(`Expired OTP ${otpModel}`);
-      throw new BadRequestException(`OTP has expired`);
-    }
-
     const user = await this.userRepository.findOne({
-      where: { id: otpModel.user.id },
+      where: { id: otpModel.user_id },
       select: [
         'id',
         'email',
@@ -139,11 +141,15 @@ export class AuthService {
       throw new BadRequestException(`OTP not found`);
     }
 
-    if (this.otpService.isExpired(otpModel)) {
-      throw new BadRequestException(`OTP has expired`);
-    }
+    // if (this.otpService.isExpired(otpModel)) {
+    //   throw new BadRequestException(`OTP has expired`);
+    // }
 
-    await this.userRepository.createPassword(otpModel.user, newPasswordDto);
+    const user = await this.userRepository.findOne({
+      where: { id: otpModel.user_id },
+    });
+
+    await this.userRepository.createPassword(user, newPasswordDto);
     await this.otpService.delete(otpModel);
 
     return { message: 'New password saved' };
@@ -161,7 +167,7 @@ export class AuthService {
 
     let otp: number;
     try {
-      otp = await this.otpService.getOTP(user);
+      otp = await this.otpService.getOTP(user.id);
       await this.sendEmail(user.email, otp);
     } catch (e) {
       this.logger.error(`X Could not generate OTP for ${email}`);
