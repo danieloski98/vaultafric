@@ -13,6 +13,7 @@ import { AdminAuthModule } from './admin-auth/admin-auth.module';
 import { RolesModule } from './roles/roles.module';
 import { ReportModule } from './report/report.module';
 import { UserModule } from './user/user.module';
+import { VerificationModule } from './verification/verification.module';
 
 console.log(process.env.NODE_ENV);
 
@@ -42,6 +43,7 @@ console.log(process.env.NODE_ENV);
     RolesModule,
     ReportModule,
     UserModule,
+    VerificationModule,
   ],
   providers: [],
 })
